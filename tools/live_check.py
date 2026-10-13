@@ -108,6 +108,14 @@ def main():
     tok = j['access_token']
 
     try:
+        # 1b) per-app role (QC Rev 1.9). Servers without card_role() behave like the old rules (soft delete for everyone).
+        st, j = call('POST', '/rest/v1/rpc/card_role', {}, token=tok)
+        role = j if st == 200 and isinstance(j, str) else None
+        check('card_role()', st == 200 or (isinstance(j, dict) and j.get('code') == 'PGRST202'), role or 'no card_role() on this server (pre Rev 1.9)')
+        if role in ('none', 'viewer'):
+            check('role can insert/update (editor or admin needed for this check)', False, f'card_role = {role}'); return 1
+        admin = role in (None, 'admin')
+
         # 2) anon can't read
         st, j = call('GET', rest + '?select=id&limit=1', anon=True)
         if table_missing(st, j):
@@ -151,19 +159,24 @@ def main():
         # 7) soft delete
         now = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
         st, j = call('PATCH', f'{rest}?id=eq.{rid}', {'deleted_at': now}, token=tok, prefer='return=representation')
-        r3 = j[0] if st == 200 and j else {}
-        check('soft delete (deleted_at set)', r3.get('deleted_at') is not None and ts(r3['updated_at']) > ts(r2['updated_at']), f'HTTP {st}')
-        st, j = call('GET', f'{rest}?select=id,deleted_at&id=eq.{rid}', token=tok)
-        check('soft-deleted row still readable (so other devices see the delete)', st == 200 and j and j[0]['deleted_at'], f'HTTP {st}')
-
-        # 8) DELETE must be refused
-        st, j = call('DELETE', f'{rest}?id=eq.{rid}', token=tok, prefer='return=representation')
-        gone = call('GET', f'{rest}?select=id&id=eq.{rid}', token=tok)[1] == []
-        check('DELETE refused (no DELETE permission)', st in (401, 403, 405) or (st in (200, 204) and not gone), f'HTTP {st}{" - ROW WAS DELETED" if gone else ""}')
+        if admin:
+            r3 = j[0] if st == 200 and j else {}
+            check('soft delete (deleted_at set)', r3.get('deleted_at') is not None and ts(r3['updated_at']) > ts(r2['updated_at']), f'HTTP {st}')
+            st, j = call('GET', f'{rest}?select=id,deleted_at&id=eq.{rid}', token=tok)
+            check('soft-deleted row still readable (so other devices see the delete)', st == 200 and j and j[0]['deleted_at'], f'HTTP {st}')
+            # 8) hard DELETE: admins may hard-delete under Rev 1.9, so it is not probed (the test row is kept, soft-deleted)
+            check('hard DELETE not probed for an admin (allowed by Rev 1.9 rules)', True, 'skipped')
+        else:
+            check('non-admin soft delete refused with RG_CARD_DELETE', st >= 400 and 'RG_CARD_DELETE' in json.dumps(j), f'HTTP {st}')
+            check('row still live after the refused delete', (call('GET', f'{rest}?select=deleted_at&id=eq.{rid}', token=tok)[1] or [{}])[0].get('deleted_at') is None)
+            # 8) hard DELETE must be refused for a non-admin
+            st, j = call('DELETE', f'{rest}?id=eq.{rid}', token=tok, prefer='return=representation')
+            gone = call('GET', f'{rest}?select=id&id=eq.{rid}', token=tok)[1] == []
+            check('DELETE refused (needs card_can_delete)', st in (401, 403, 405) or (st in (200, 204) and not gone), f'HTTP {st}{" - ROW WAS DELETED" if gone else ""}')
     finally:
         call('POST', '/auth/v1/logout?scope=local', {}, token=tok)
 
-    print(f'\n{"ALL CHECKS PASSED" if all(results) else "SOME CHECKS FAILED"} ({sum(results)}/{len(results)}). Test row {rid} left soft-deleted.')
+    print(f'\n{"ALL CHECKS PASSED" if all(results) else "SOME CHECKS FAILED"} ({sum(results)}/{len(results)}). Test row {rid} left ' + ('soft-deleted.' if admin else 'in the table (live; an admin can delete it).'))
     return 0 if all(results) else 1
 
 

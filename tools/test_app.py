@@ -196,6 +196,8 @@ async def main():
             sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
             from test_sync import sync_tests
             await sync_tests(b, URL, OUT, check)
+            from test_roles import role_tests   # per-app roles (QC Rev 1.9), tools/test_roles.py
+            await role_tests(b, URL, check)
         check('app tests never contacted the real Supabase project', not real_hits, str(real_hits[:3]))
         await b.close()
     print(f"\n{sum(r[1] for r in results)}/{len(results)} checks passed")

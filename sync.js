@@ -47,6 +47,37 @@
     let s = null; try { s = JSON.parse(localStorage.getItem(LS_SYNC) || 'null'); } catch (e) {}
     return Object.assign({ wm: null, outbox: [], registry: {}, lastSyncAt: null, lastError: '', needFull: false, skipped: 0, stats: null }, s || {});
   }
+  // ---------- per-app role (QC Rev 1.9: members.card_role = none | viewer | editor | admin, server default editor) ----------
+  // Read once per signed-in user with the card_role() RPC and remembered (S.role / S.roleUser) for reloads and offline use.
+  // Until it is known the app behaves like the server default (editor: may edit, may not delete).
+  const ROLES = ['none', 'viewer', 'editor', 'admin'];
+  const uid = () => (session && session.user && session.user.id) || null;
+  const role = () => (configured && S.role && (!uid() || S.roleUser === uid()) ? S.role : 'editor');
+  const canView = () => !configured || role() !== 'none';
+  const canEdit = () => !configured || role() === 'editor' || role() === 'admin';
+  const canDelete = () => !configured || role() === 'admin';
+  async function loadRole(cl) {
+    const res = await cl.rpc('card_role');
+    let r;
+    if (res.error) {
+      const e = res.error;
+      // a server from before Rev 1.9 has no card_role(): behave like the default role
+      if (e.code === 'PGRST202' || /could not find the function/i.test(e.message || '')) r = 'editor';
+      else { const x = new Error(e.message || 'role'); x.code = e.code; x.status = res.status; throw x; }
+    } else r = String(res.data || '').toLowerCase();
+    if (!ROLES.includes(r)) r = 'none';
+    const was = S.role;
+    S.role = r; S.roleUser = uid(); saveStore();
+    if (r === 'none') noAccess();
+    if (was !== r && host) { host.render(); if (host.updateMenus) host.updateMenus(); }
+    return r;
+  }
+  // role none: nothing may stay in this browser
+  function noAccess() {
+    S.outbox = []; S.registry = {}; S.tomb = {}; S.wm = null; S.needFull = true; S.stats = null;
+    if (host && host.clearAll) host.clearAll();
+    saveStore();
+  }
   function saveStore() { try { localStorage.setItem(LS_SYNC, JSON.stringify(S)); } catch (e) {} }
   const nowIso = () => new Date().toISOString();
   const ms = t => (t ? Date.parse(t) || 0 : 0);
@@ -249,6 +280,7 @@
       if (r.message) { msg.textContent = r.message; return; }
       $('#siPass').value = '';                            // don't keep the PIN around
       if (session && r.session && session.user && r.session.user && session.user.id !== r.session.user.id) fileState = null;
+      if (S.roleUser !== (r.session && r.session.user && r.session.user.id)) { S.role = null; S.roleUser = null; }
       session = r.session; $('#dlgSignIn').close('ok'); ui();
       sync({ full: !S.wm, manual: true });
     } catch (e) {
@@ -268,7 +300,7 @@
   async function signOut() {
     if (!configured) return;
     try { const cl = await client(); await cl.auth.signOut({ scope: 'local' }); } catch (e) {}
-    session = null; fileState = null; ui(); host.render();
+    session = null; fileState = null; S.role = null; S.roleUser = null; saveStore(); ui(); host.render();
   }
 
   // ---------- sync ----------
@@ -311,6 +343,8 @@
         if (!navigator.onLine) throw Object.assign(new Error('offline'), { offline: true });
         if (!session) await getSession();
         if (!session) { S.lastError = ''; return; }
+        if (!S.role || S.roleUser !== uid()) await loadRole(await client());
+        if (role() === 'none') { S.lastError = ''; return; }
         ensureCustomers();
         localChanged();
         if (fileState === null) await probeFile(await client());
@@ -318,7 +352,7 @@
         await pull(full);
         S.needFull = false;
         host.persist(); localChanged();
-        await push();
+        if (canEdit()) await push();   // viewers are read-only: nothing is sent
         S.lastSyncAt = nowIso(); S.lastError = ''; S.unavailable = null;
       } catch (e) {
         if (missingTable(e)) { S.unavailable = nowIso(); S.lastError = ''; }
@@ -467,11 +501,36 @@
   }
 
   async function push() {
-    const cl = await client(), stats = S.stats || {};
+    const cl = await client(), stats = S.stats || {}, denied = [];
     stats.pushed = 0;
+    try { await pushOps(cl, stats, denied); }
+    finally {
+      if (denied.length) host.message(`Only a Cardfile admin can delete cards (or bring deleted ones back).\n\n${denied.length === 1 ? 'This card was put back as it is on the server' : 'These cards were put back as they are on the server'}:\n` + denied.slice(0, 10).map(t => '  ' + (t.trim() || '(no index line)')).join('\n'));
+    }
+    S.stats = stats;
+    localChanged();
+  }
+  // QC Rev 1.9: a non-admin changing deleted_at makes the server raise RG_CARD_DELETE
+  const isDeleteDenied = res => !!(res && res.error && /RG_CARD_DELETE/.test((res.error.message || '') + ' ' + (res.error.details || '') + ' ' + (res.error.hint || '')));
+  // put the server's copy of a row back into this browser (the local delete was refused)
+  async function restoreRow(cl, rid, denied) {
+    delete S.registry[rid]; if (S.tomb) delete S.tomb[rid];
+    const g = findGone(rid); if (g && g.c.sync) g.c.sync.goneId = null;
+    const data = chk(await cl.from(C.table).select('*').eq(K.id, rid));
+    if (data && data[0]) {
+      const before = findById(rid);
+      apply(data[0], { added: 0, updated: 0, removed: 0, kept: 0, skipped: 0 }, null);
+      const now = findById(rid);
+      if (denied) denied.push(now ? now.c.title : (before ? before.c.title : ''));
+    }
+    host.persist(); saveStore();
+  }
+  async function pushOps(cl, stats, denied) {
     for (const op of S.outbox.slice()) {
       if (op.op === 'delete') {
-        chk(await cl.from(C.table).update(delMark()).eq(K.id, op.id));   // soft delete only (no DELETE permission by design)
+        const dr = await cl.from(C.table).update(delMark()).eq(K.id, op.id);   // soft delete (deleted_at)
+        if (isDeleteDenied(dr)) { S.outbox = S.outbox.filter(o => o !== op); await restoreRow(cl, op.id, denied); continue; }   // never retried
+        chk(dr);
         S.outbox = S.outbox.filter(o => o !== op); stats.pushed++;
         S.tomb = S.tomb || {}; S.tomb[op.id] = 1;   // remembered so an Undo after the push can bring the row back
         const tk = Object.keys(S.tomb); if (tk.length > 2000) delete S.tomb[tk[0]];
@@ -498,7 +557,9 @@
         if (!s.linked) {
           const full = Object.assign({ [K.title]: clampTitle(c.title), [K.body]: c.body }, notesOnly);
           if (s.undel) Object.assign(full, liveMark());   // bring back a row deleted earlier (Undo, or edited here after the delete)
-          data = chk(await cl.from(C.table).update(full).eq(K.id, s.id).is(K.customerId, null).select());
+          const ur = await cl.from(C.table).update(full).eq(K.id, s.id).is(K.customerId, null).select();
+          if (s.undel && isDeleteDenied(ur)) { delete s.undel; denied.push(c.title); await restoreRow(cl, s.id, null); continue; }   // undelete is an admin action too
+          data = chk(ur);
           if (!data.length) data = chk(await cl.from(C.table).update(notesOnly).eq(K.id, s.id).select());   // QC linked it meanwhile: only notes
         } else data = chk(await cl.from(C.table).update(notesOnly).eq(K.id, s.id).select());
         if (data.length) { delete s.undel; apply(data[0], {}, null); }
@@ -506,8 +567,6 @@
         stats.pushed++;
       }
     }
-    S.stats = stats;
-    localChanged();
   }
 
   // ---------- sharing ----------
@@ -519,6 +578,7 @@
       host.undoable('Share with QC');
       f.shared = true; S.needFull = true;
     } else {
+      if (!canDelete()) { host.message('Only a Cardfile admin can stop sharing a file (that removes its cards from the shared table).'); return; }
       const up = f.cards.filter(c => c.sync && c.sync.id && !c.sync.linked).length;
       const ok = await host.confirm(`Stop sharing "${f.name}" with QC?` + (up ? `\n\nIts ${up} uploaded card(s) will be marked deleted in the shared table, so QC stops showing them. The cards stay here.` : ''), 'Stop sharing');
       if (!ok) return;
@@ -544,13 +604,14 @@
   const hasStoredSession = () => { try { return !!localStorage.getItem(C.auth.storageKey); } catch (e) { return false; } };
   function status() {
     return { configured, signedIn: !!session || (!sb && hasStoredSession()), user: displayUser(session ? session.user && session.user.email : storedEmail()), online: navigator.onLine, running: !!S.running,
-      pending: S.outbox.length, lastSyncAt: S.lastSyncAt, lastError: S.lastError, unavailable: !!S.unavailable, fileColumn: fileState, skipped: S.skipped, stats: S.stats };
+      pending: S.outbox.length, lastSyncAt: S.lastSyncAt, lastError: S.lastError, unavailable: !!S.unavailable, fileColumn: fileState, skipped: S.skipped, stats: S.stats,
+      role: role(), roleKnown: !!(S.role && S.roleUser === uid()), canView: canView(), canEdit: canEdit(), canDelete: canDelete() };
   }
   function ui() {
     if (!configured) return;
     clearTimeout(uiTimer);
     const st = status(), btn = $('#btnSync'), lbl = $('#syncLabel'), who = $('#syncUser');
-    lock(!st.signedIn);
+    lock(!st.signedIn || !st.canView, st.signedIn && !st.canView);
     if (!btn) return;
     btn.hidden = false; who.hidden = false;
     const n = st.pending, waiting = n ? `${n} change${n === 1 ? '' : 's'} waiting` : '';
@@ -560,6 +621,7 @@
     else if (!st.online) { text = 'Offline' + (waiting ? ' · ' + waiting : ''); cls = 'off'; }
     else if (st.unavailable) { text = 'QC sync not available yet'; cls = 'off'; }
     else if (st.lastError) { text = 'Sync problem' + (waiting ? ' · ' + waiting : ''); cls = 'err'; }
+    else if (!st.canEdit) { text = 'Read-only' + (st.lastSyncAt ? ' · synced ' + fmtTime(st.lastSyncAt) : ''); cls = 'ro'; }
     else if (waiting) { text = waiting; cls = 'wait'; }
     else text = st.lastSyncAt ? 'Synced ' + fmtTime(st.lastSyncAt) : 'Sync';
     lbl.textContent = text; btn.className = cls;
@@ -572,9 +634,14 @@
     if (host && host.updateMenus) host.updateMenus();
   }
   // signed out: the cards stay hidden behind the sign-in screen (they come from the database; localStorage is only a cache)
-  function lock(on) {
+  function lock(on, noRole) {
     document.body.classList.toggle('locked', !!on);
     const g = $('#gate'); if (g) g.hidden = !on;
+    const m = $('#gateMsg'), b = $('#gateSignIn'), o = $('#gateSignOut');
+    if (m) m.textContent = noRole ? 'You don’t have Cardfile access yet. Ask a QC admin to give you Cardfile access, then sign in again.' : '';
+    if (b) b.textContent = noRole ? 'Sign in as someone else' : 'Sign in';
+    if (o) o.hidden = !noRole;
+    const t = $('#gateText'); if (t) t.hidden = !!noRole;
   }
   function onButton() { if (!session) openSignIn(); else sync({ manual: true }); }
 
@@ -589,6 +656,7 @@
     $('#siForm').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); doSignIn(); } });
     $('#btnSync').onclick = onButton;
     if ($('#gateSignIn')) $('#gateSignIn').onclick = openSignIn;
+    if ($('#gateSignOut')) $('#gateSignOut').onclick = signOut;
     $('#syncError').onclick = () => host.message(S.lastError);
     window.addEventListener('online', () => { ui(); sync(); });
     window.addEventListener('offline', () => ui());
@@ -598,7 +666,7 @@
 
   root.CardSync = {
     configured, config: C, init, localChanged, sync, fullResync: () => sync({ full: true, manual: true }), toggleShare, openSignIn, signOut, resetLocal,
-    isShared, isCustomers, isLinked, isGone, status, ensureCustomers, shareAll: () => !!C.shareAllFiles, fileFor,
+    isShared, isCustomers, isLinked, isGone, status, role, canView, canEdit, canDelete, loadRole: async () => loadRole(await client()), ensureCustomers, shareAll: () => !!C.shareAllFiles, fileFor,
     _store: () => S, _qcEmail: qcEmail,
   };
 })(window);

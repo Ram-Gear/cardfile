@@ -36,6 +36,9 @@
   const SYNC = () => (window.CardSync && CardSync.configured ? CardSync : null);
   const linkedCard = c => !!(SYNC() && CardSync.isLinked(c));
   const goneCard = c => !!(SYNC() && CardSync.isGone(c));
+  // per-app role (QC sync on): viewers are read-only; only admins see delete. With sync off everything is allowed.
+  const RO = () => !!(SYNC() && !CardSync.canEdit());
+  const NODEL = () => !!(SYNC() && !CardSync.canDelete());
   const showNotes = c => !!SYNC() || !!(c && c.notes);
   function sortFiles() { state.files.sort((a, b) => (b.builtin === 'customers') - (a.builtin === 'customers') || collator.compare(a.name, b.name)); }
 
@@ -94,6 +97,7 @@
     updateMenus();
   }
   function undo() {
+    if (RO()) return;
     const u = undoStack.pop();
     if (!u) return;
     state.files = initFiles(JSON.parse(u.files)); state.cur = u.cur;
@@ -213,7 +217,7 @@
       state.cur === ALL ? el('span', { class: 'filetag', text: e.file.name }) : null);
     const body = el('div', { class: 'cbody' });
     if (c.image && c.image.src) body.append(el('img', { class: 'cimg' + (isBig(c) ? ' big' : ''), src: c.image.src, alt: c.image.kind || 'picture', title: c.image.kind || '' }));
-    const ta = el('textarea', { id: 'bodyText', spellcheck: 'false', 'aria-label': 'Card text', readonly: linked });
+    const ta = el('textarea', { id: 'bodyText', spellcheck: 'false', 'aria-label': 'Card text', readonly: linked || RO() });
     ta.value = c.body;
     if (linked) body.append(el('div', { class: 'qchint', text: 'Name and card text come from the QC app (edit them there). Your notes below are yours and sync to every device.' }));
     ta.addEventListener('input', () => {
@@ -223,7 +227,7 @@
     body.append(ta);
     if (showNotes(c)) {
       const nt = el('textarea', { id: 'notesText', spellcheck: 'true', rows: '3', 'aria-label': 'My notes', placeholder: CardSync && CardSync.isShared && SYNC() && CardSync.isShared(e.file) ? 'Add your notes… (synced with QC)' : 'Add your notes… (kept in this browser)' });
-      nt.value = c.notes || '';
+      nt.value = c.notes || ''; if (RO()) nt.readOnly = true;
       nt.addEventListener('input', () => {
         if (!editSnapTaken) { const v = nt.value; nt.value = c.notes || ''; pushUndo('Notes'); nt.value = v; editSnapTaken = true; }
         c.notes = nt.value; save();
@@ -310,6 +314,7 @@
     });
   }
   function openIndex() {
+    if (RO()) return;
     const e = curEntry(); if (!e) return;
     if (linkedCard(e.card)) { message('This card is linked to a QC customer, so its name comes from the QC app. Change it there; it updates here on the next sync.'); return; }
     const inp = $('#indexInput'); inp.value = e.card.title;
@@ -321,6 +326,7 @@
     inp.select();
   }
   function openAdd() {
+    if (RO()) return;
     const inp = $('#addInput'); inp.value = '';
     const row = $('#addFileRow'), fs = $('#addFile');
     if (state.cur === ALL) {
@@ -341,6 +347,7 @@
   }
   // ---------------- scan business card (scan.js does the camera/OCR/review part) ----------------
   function scanCard() {
+    if (RO()) return;
     if (!window.CardScan) { message('The business card scanner (scan.js) did not load.'); return; }
     CardScan.open({
       files: () => state.files,
@@ -364,6 +371,7 @@
   }
   function setViewIfList() { if (state.view === 'list') state.view = 'card'; }
   async function deleteCard() {
+    if (NODEL()) return;
     const e = curEntry(); if (!e) return;
     if (linkedCard(e.card)) { message('This card is linked to a QC customer. Remove the customer in the QC app instead; your notes are kept here if you wrote any.'); return; }
     if (!(await confirmBox(`Delete "${e.card.title.trim()}"?`))) return;
@@ -373,6 +381,7 @@
     bringFront(); save(); render();
   }
   function duplicateCard() {
+    if (RO()) return;
     const e = curEntry(); if (!e) return;
     pushUndo('Duplicate');
     const c = JSON.parse(JSON.stringify(e.card)); c.id = newId(); delete c.sync;
@@ -380,6 +389,7 @@
     pos = indexOfId(c.id); bringFront(); save(); render();
   }
   function restoreCard() {
+    if (RO()) return;
     const e = curEntry(); if (!e || !frontSnap || frontSnap.id !== e.card.id || linkedCard(e.card)) return;
     if (e.card.title === frontSnap.title && e.card.body === frontSnap.body) return;
     pushUndo('Restore');
@@ -508,6 +518,7 @@
     return n;
   }
   async function newFile() {
+    if (RO()) return;
     const name = await promptBox('New card file', 'File name:', '', 40);
     if (!name || !name.trim()) return;
     const n = uniqueName(name.trim());
@@ -517,6 +528,7 @@
     switchFile(state.files.findIndex(f => f.name === n));
   }
   async function deleteFile() {
+    if (NODEL()) return;
     const f = curFile(); if (!f) { message('Choose a single card file first (not "All files").'); return; }
     if (f.builtin === 'customers') { message('The Customers file is built in and shared with QC, so it can’t be deleted.'); return; }
     const up = SYNC() && CardSync.isShared(f) ? f.cards.filter(c => c.sync && c.sync.id && !c.sync.linked).length : 0;
@@ -524,6 +536,7 @@
     state.files.splice(state.cur, 1); switchFile(0);
   }
   function importCrdFiles(fileList) {
+    if (RO()) return;
     const reports = []; let lastIdx = null;
     const jobs = [...fileList].map(file => file.arrayBuffer().then(buf => {
       try {
@@ -559,6 +572,7 @@
     if (pics || long) message(`${name} written in Cardfile 3.0 (MGC) format.` + (pics ? `\n${pics} picture(s) were not included (text only).` : '') + (long ? `\n${long} index line(s) were cut to 39 characters.` : ''));
   }
   function importJson(file) {
+    if (RO()) return;
     file.text().then(async t => {
       let data; try { data = JSON.parse(t); } catch (e) { message('Not a valid backup file: ' + e.message); return; }
       const files = Array.isArray(data) ? data : data.files;
@@ -603,11 +617,11 @@
   // ---------------- menus ----------------
   const MENUS = [
     ['&File', [
-      ['&New card file…', newFile], ['&Open…', openOpen, 'Ctrl+O'], ['-'],
+      ['&New card file…', newFile, '', null, null, RO], ['&Open…', openOpen, 'Ctrl+O'], ['-'],
       ['&Print', () => { const e = curEntry(); if (e) printCards([e]); }], ['Print A&ll', () => printCards(list())], ['-'],
-      ['&Import .CRD file(s)…', () => $('#importCrd').click()],
-      ['Export as .&CRD (Cardfile 3.0)', exportCrd], ['Export &Backup (JSON)', exportJson], ['Restore Backup (JSON)…', () => $('#importJson').click()], ['-'],
-      ['Phone &settings…', setAreaCode], ['&Delete this card file…', deleteFile], ['&Reset (reload cards)…', resetData],
+      ['&Import .CRD file(s)…', () => $('#importCrd').click(), '', null, null, RO],
+      ['Export as .&CRD (Cardfile 3.0)', exportCrd], ['Export &Backup (JSON)', exportJson], ['Restore Backup (JSON)…', () => $('#importJson').click(), '', null, null, RO], ['-'],
+      ['Phone &settings…', setAreaCode], ['&Delete this card file…', deleteFile, '', null, null, NODEL], ['&Reset (reload cards)…', resetData],
       ['-', null, '', null, null, () => !SYNC()],
       ['Share with &QC', () => CardSync.toggleShare(curFile()), '', () => !curFile() || curFile().builtin === 'customers', () => !!(SYNC() && CardSync.isShared(curFile())), () => !SYNC() || CardSync.shareAll()],
       ['S&ync with QC now', () => CardSync.sync({ manual: true }), '', () => !CardSync.status().signedIn, null, () => !SYNC()],
@@ -615,16 +629,16 @@
       ['Sign &in to QC sync…', () => CardSync.openSignIn(), '', null, null, () => !SYNC() || CardSync.status().signedIn],
       ['Sign out of QC sync', () => CardSync.signOut(), '', null, null, () => !SYNC() || !CardSync.status().signedIn]]],
     ['&Edit', [
-      ['&Undo', undo, 'Ctrl+Z', () => !undoStack.length], ['-'],
-      ['&Index…', openIndex, 'F6', () => !curEntry()], ['&Restore', restoreCard, '', () => !curEntry()]]],
+      ['&Undo', undo, 'Ctrl+Z', () => !undoStack.length, null, RO], ['-'],
+      ['&Index…', openIndex, 'F6', () => !curEntry(), null, RO], ['&Restore', restoreCard, '', () => !curEntry(), null, RO]]],
     ['&View', [
       ['&Card', () => setView('card'), '', null, () => state.view === 'card'],
       ['&List', () => setView('list'), '', null, () => state.view === 'list'], ['-'],
       ['&Fixed-width text (aligns columns)', () => { prefs.fixedFont = !prefs.fixedFont; savePrefs(); render(); }, '', null, () => !!prefs.fixedFont]]],
     ['&Card', [
-      ['&Add…', openAdd, 'F7'], ['&Delete', deleteCard, '', () => !curEntry()], ['Du&plicate', duplicateCard, '', () => !curEntry()],
+      ['&Add…', openAdd, 'F7', null, null, RO], ['&Delete', deleteCard, '', () => !curEntry(), null, NODEL], ['Du&plicate', duplicateCard, '', () => !curEntry(), null, RO],
       ['Au&todial (call)…', openDial, 'F5', () => !curEntry()], ['-'],
-      ['&Scan business card…', scanCard, 'F8']]],
+      ['&Scan business card…', scanCard, 'F8', null, null, RO]]],
     ['&Search', [
       ['&Go To…', openGoto, 'F4'], ['&Find…', openFind], ['Find &Next', findNext, 'F3'], ['-'],
       ['Search &All Files…', () => openSearchAll(), 'Ctrl+Shift+F']]],
@@ -654,6 +668,8 @@
   function openMenu(i) { updateMenus(); menuEls[i].classList.add('open'); const f = menuEls[i].querySelector('li button:not([disabled])'); f && f.focus(); }
   function closeMenus() { menuEls.forEach(m => m.classList.remove('open')); }
   function updateMenus() {
+    const sb = $('#btnScan'); if (sb) sb.hidden = RO();
+    document.body.classList.toggle('readonly', RO());
     document.querySelectorAll('.menu li').forEach(li => { if (li._hidden) li.hidden = !!li._hidden(); });
     document.querySelectorAll('.menu li button').forEach(b => {
       b.disabled = b._disabled ? !!b._disabled() : false;
@@ -753,6 +769,12 @@
     render();
     if (id) { const t = $('#' + id); if (t && !t.readOnly) { t.focus(); t.setSelectionRange(s0, s1); } }
   }
+  // role none: forget every card kept in this browser
+  function clearAll() {
+    state = { files: [], cur: 0, view: state.view }; pos = 0; undoStack = [];
+    try { localStorage.removeItem(LS_KEY); } catch (e) {}
+    render();
+  }
   function addFile(f) {
     const cur = curFile(); state.files.push(f); sortFiles();
     if (cur) state.cur = state.files.indexOf(cur);
@@ -760,7 +782,7 @@
   }
   load(); buildMenus(); wire();
   if (window.CardSync) CardSync.init({
-    files: () => state.files, addFile, newId, sortFile, persist, render: renderKeep, message, confirm: confirmBox, showDialog, updateMenus, undoable: pushUndo,
+    files: () => state.files, addFile, clearAll, newId, sortFile, persist, render: renderKeep, message, confirm: confirmBox, showDialog, updateMenus, undoable: pushUndo,
   });
   if (SYNC()) { sortFiles(); const c = curFile(); if (c) state.cur = state.files.indexOf(c); }
   bringFront(); render();

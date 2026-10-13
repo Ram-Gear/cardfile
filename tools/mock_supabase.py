@@ -47,6 +47,12 @@ class MockSupabase:
         self.tokens = set()
         self.fail = []           # queued failures for REST calls: 'abort' | (status, body)
         self.down = False        # True: every REST call fails like a dropped network
+        # QC Rev 1.9 per-app roles: members.card_role in none | viewer | editor | admin. The real default is 'editor'; the mock
+        # defaults to 'admin' so the older flows (which delete cards) keep working; role tests pass role= explicitly.
+        self.roles = {}          # e-mail -> card_role
+        self.default_role = 'admin'
+        self.rpc_exists = True   # False: a server from before Rev 1.9 (no card_role() helpers)
+        self.tok_email = {}      # access token -> e-mail
         self._last = datetime.now(timezone.utc) - timedelta(minutes=5)
 
     @property
@@ -63,7 +69,9 @@ class MockSupabase:
     def add_user(self, email, password):
         self.users[email] = password
 
-    def add_qc_user(self, username, pin, activated=True):
+    def add_qc_user(self, username, pin, activated=True, role=None):
+        if role is not None:
+            self.roles[qc_email(username)] = role
         if activated:
             self.users[qc_email(username)] = 'rg1:' + pin
         else:
@@ -99,7 +107,7 @@ class MockSupabase:
         return [r for r in self.rows.values() if all(r.get(k) == v for k, v in kv.items())]
 
     def rest_writes(self):
-        return [x for x in self.log if x[1].startswith('/rest/') and x[0] in ('POST', 'PATCH', 'DELETE')]
+        return [x for x in self.log if x[1].startswith('/rest/') and not x[1].startswith('/rest/v1/rpc/') and x[0] in ('POST', 'PATCH', 'DELETE')]   # table writes (not RPC calls)
 
     # ---- request handling (Playwright route) ----
     async def handle(self, route, request):
@@ -132,6 +140,19 @@ class MockSupabase:
                 if f == 'abort':
                     return 'abort', None, None
                 return self.out(f[0], f[1])
+            if u.path.startswith('/rest/v1/rpc/') and not self.rpc_exists:   # PostgREST's answer for an unknown function
+                return self.out(404, {'code': 'PGRST202', 'details': None, 'hint': None,
+                                      'message': f"Could not find the function public.{u.path[len('/rest/v1/rpc/'):]} without parameters in the schema cache"})
+            if u.path.startswith('/rest/v1/rpc/') and self.rpc_exists:
+                tok = (headers.get('authorization') or '').replace('Bearer ', '')
+                if tok not in self.tokens:
+                    return self.out(401, {'code': '42501', 'message': 'permission denied for function'})
+                fn, role = u.path[len('/rest/v1/rpc/'):], self.role_of(tok)
+                res = {'card_role': role, 'card_can_view': role in ('viewer', 'editor', 'admin'),
+                       'card_can_edit': role in ('editor', 'admin'), 'card_can_delete': role == 'admin'}
+                if fn not in res:
+                    return self.out(404, {'code': 'PGRST202', 'message': f'Could not find the function public.{fn} without parameters in the schema cache'})
+                return self.out(200, res[fn])
             if u.path != f'/rest/v1/{self.table}' or not self.table_exists:
                 name = u.path[len('/rest/v1/'):]
                 return self.out(404, {'code': 'PGRST205', 'details': None, 'hint': None,
@@ -139,8 +160,11 @@ class MockSupabase:
             tok = (headers.get('authorization') or '').replace('Bearer ', '')
             if tok not in self.tokens:   # anon: no grants at all
                 return self.out(401, {'code': '42501', 'message': f'permission denied for table {self.table}'})
-            return self.rest(m, q, body, headers)
+            return self.rest(m, q, body, headers, self.role_of(tok))
         return self.out(404, {'message': 'not found'})
+
+    def role_of(self, tok):
+        return self.roles.get(self.tok_email.get(tok), self.default_role)
 
     @staticmethod
     def out(status, data, extra=None):
@@ -155,7 +179,7 @@ class MockSupabase:
             exp = int(time.time()) + 3600
             uid = str(uuid.uuid5(uuid.NAMESPACE_DNS, email))
             tok = b64({'alg': 'HS256', 'typ': 'JWT'}) + '.' + b64({'sub': uid, 'email': email, 'role': 'authenticated', 'aud': 'authenticated', 'exp': exp}) + '.sig'
-            self.tokens.add(tok)
+            self.tokens.add(tok); self.tok_email[tok] = email
             user = {'id': uid, 'aud': 'authenticated', 'role': 'authenticated', 'email': email, 'app_metadata': {'provider': 'email'},
                     'user_metadata': {}, 'created_at': '2026-01-01T00:00:00Z'}
             return self.out(200, {'access_token': tok, 'token_type': 'bearer', 'expires_in': 3600, 'expires_at': exp,
@@ -221,7 +245,8 @@ class MockSupabase:
         sel = q.get('select', '*')
         return dict(row) if sel in ('', '*') else {c: row.get(c) for c in sel.split(',')}
 
-    def rest(self, m, q, body, headers):
+    def rest(self, m, q, body, headers, role='admin'):
+        view, edit, admin = role in ('viewer', 'editor', 'admin'), role in ('editor', 'admin'), role == 'admin'
         rep = 'return=representation' in (headers.get('prefer') or '')
         cols = self.cols
         for k in list(q) + [c for c in q.get('select', '*').split(',') if c not in ('', '*')] + [p.split('.')[0] for p in (q.get('order') or '').split(',') if p]:
@@ -236,7 +261,13 @@ class MockSupabase:
                 return self.out(400, {'code': '23514', 'message': 'new row for relation "customer_cards" violates check constraint "customer_cards_title_check"'})
             if 'source' in it and it['source'] not in ('qc', 'cardfile'):
                 return self.out(400, {'code': '23514', 'message': 'violates check constraint "customer_cards_source_check"'})
-        hit = [r for r in self.rows.values() if self._match(r, q)]
+        hit = [r for r in self.rows.values() if self._match(r, q)] if view else []   # RLS: select needs card_can_view()
+        if m == 'POST' and not edit:
+            return self.out(403, {'code': '42501', 'message': f'new row violates row-level security policy for table "{self.table}"'})
+        if m == 'PATCH' and not edit:
+            hit = []   # RLS: update needs card_can_edit(); rows the policy hides are simply not updated
+        if m == 'PATCH' and not admin and 'deleted_at' in (body or {}) and any(r.get('deleted_at') != body['deleted_at'] for r in hit):
+            return self.out(400, {'code': 'P0001', 'details': None, 'hint': None, 'message': 'RG_CARD_DELETE'})
         if m == 'GET':
             for part in reversed((q.get('order') or '').split(',')):
                 if part:
@@ -266,7 +297,11 @@ class MockSupabase:
             for r in hit:
                 r.update(body or {}); r['updated_at'] = self.now()   # trigger
             return self.out(200, [self._project(r, q) for r in hit] if rep else None)
-        if m == 'DELETE':   # no DELETE grant for authenticated
+        if m == 'DELETE' and admin:   # hard delete needs card_can_delete()
+            for r in hit:
+                del self.rows[r['id']]
+            return self.out(200 if rep else 204, [self._project(r, q) for r in hit] if rep else None)
+        if m == 'DELETE':
             return self.out(403, {'code': '42501', 'message': f'permission denied for table {self.table}'})
         return self.out(405, {'message': 'method'})
 
