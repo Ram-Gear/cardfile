@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cardfile - Ram-Gear</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="gate" hidden>
+  <div class="gatebox">
+    <h1>Cardfile</h1>
+    <p>Sign in with your QC username and PIN to see the cards.</p>
+    <button type="button" id="gateSignIn" class="default">Sign in</button>
+    <p class="hint" id="gateMsg"></p>
+  </div>
+</div>
+<div id="app">
+  <header id="titlebar"><span id="appTitle">Cardfile - (Untitled)</span><span class="tright"><span id="syncUser" hidden></span><span id="saveState" title="Changes are saved in this browser automatically"></span></span></header>
+  <nav id="menubar" role="menubar"></nav>
+  <div id="statusbar">
+    <span id="viewName">Card View</span>
+    <span class="navbtns"><button id="btnPrev" title="Previous card (PgUp)" aria-label="Previous card">&#9664;</button><button id="btnNext" title="Next card (PgDn)" aria-label="Next card">&#9654;</button></span>
+    <span id="cardCount">0 Cards</span>
+    <button id="btnScan" type="button" title="Scan a business card (take or choose a photo)" aria-label="Scan business card"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M9.4 4h5.2l1.5 2H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2.9l1.5-2zM12 8.5a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 1.8a2.2 2.2 0 1 1 0 4.4 2.2 2.2 0 0 1 0-4.4z"/></svg><span class="lbl">Scan card</span></button>
+    <button id="btnSync" type="button" hidden aria-label="Sync with QC"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 4a8 8 0 0 1 7.4 5H17v2h6V5h-2v2.3A10 10 0 0 0 2.1 11h2A8 8 0 0 1 12 4zm-7.4 11H7v-2H1v6h2v-2.3A10 10 0 0 0 21.9 13h-2A8 8 0 0 1 4.6 15z"/></svg><span id="syncLabel">Sync</span></button>
+    <button id="syncError" type="button" hidden title="Show the sync problem"></button>
+    <span id="shareChip" hidden></span>
+    <span class="spacer"></span>
+    <label class="filepick">File: <select id="filePicker" title="Choose a card file (category)"></select></label>
+    <form id="quickSearchForm" role="search"><input id="quickSearch" type="search" placeholder="Search all files&hellip;" aria-label="Search all files"></form>
+  </div>
+  <div id="letterbar" aria-label="Jump to letter"></div>
+  <main id="workspace">
+    <div id="cardView"></div>
+    <div id="listView" hidden><ul id="cardList" role="listbox" tabindex="0"></ul></div>
+  </main>
+</div>
+
+<!-- Dialogs -->
+<dialog id="dlgOpen" class="win">
+  <form method="dialog">
+    <h2>Open</h2>
+    <input id="openFilter" type="search" placeholder="Filter file names&hellip;" aria-label="Filter">
+    <ul id="openList" class="pick"></ul>
+    <div class="buttons"><button value="cancel">Cancel</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgIndex" class="win">
+  <form method="dialog">
+    <h2>Index</h2>
+    <label><u>I</u>ndex Line: <input id="indexInput" maxlength="39" autocomplete="off" size="40"></label>
+    <div class="buttons"><button value="ok" class="default">OK</button><button value="cancel" formnovalidate>Cancel</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgAdd" class="win">
+  <form method="dialog">
+    <h2>Add</h2>
+    <label><u>A</u>dd: <input id="addInput" maxlength="39" autocomplete="off" size="40"></label>
+    <label id="addFileRow" hidden>To file: <select id="addFile"></select></label>
+    <div class="buttons"><button value="ok" class="default">OK</button><button value="cancel" formnovalidate>Cancel</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgGoto" class="win">
+  <form method="dialog">
+    <h2>Go To</h2>
+    <label><u>G</u>o To: <input id="gotoInput" autocomplete="off" size="30"></label>
+    <p class="hint">Finds the next card whose index line contains this text (any case).</p>
+    <div class="buttons"><button value="ok" class="default">OK</button><button value="cancel" formnovalidate>Cancel</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgFind" class="win">
+  <form method="dialog" id="findForm">
+    <h2>Find</h2>
+    <label>Fi<u>n</u>d What: <input id="findInput" autocomplete="off" size="30"></label>
+    <div class="row">
+      <label><input type="checkbox" id="findCase"> Match <u>C</u>ase</label>
+      <fieldset><legend>Direction</legend>
+        <label><input type="radio" name="findDir" value="up"> <u>U</u>p</label>
+        <label><input type="radio" name="findDir" value="down" checked> <u>D</u>own</label>
+      </fieldset>
+    </div>
+    <div class="buttons"><button value="find" class="default" id="findNextBtn"><u>F</u>ind Next</button><button value="cancel" formnovalidate>Cancel</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgDial" class="win">
+  <form method="dialog">
+    <h2>Autodial</h2>
+    <p>Tap a number to call it:</p>
+    <ul id="dialList" class="pick"></ul>
+    <div class="buttons"><button value="cancel">Close</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgSearch" class="win wide">
+  <form method="dialog">
+    <h2>Search All Files</h2>
+    <input id="searchAllInput" type="search" autocomplete="off" placeholder="Text to find in index lines and card text" aria-label="Search text">
+    <p id="searchAllCount" class="hint"></p>
+    <ul id="searchAllList" class="pick results"></ul>
+    <div class="buttons"><button value="cancel">Close</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgPrompt" class="win">
+  <form method="dialog">
+    <h2 id="promptTitle">Cardfile</h2>
+    <label id="promptLabel"><span></span> <input id="promptInput" autocomplete="off" size="30"></label>
+    <div class="buttons"><button value="ok" class="default">OK</button><button value="cancel" formnovalidate>Cancel</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgConfirm" class="win">
+  <form method="dialog">
+    <h2>Cardfile</h2>
+    <p id="confirmText" class="msg"></p>
+    <div class="buttons"><button value="ok" class="default" id="confirmOk">OK</button><button value="cancel" id="confirmCancel">Cancel</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgHelp" class="win wide">
+  <form method="dialog">
+    <h2>Cardfile Help</h2>
+    <div id="helpBody"></div>
+    <div class="buttons"><button value="cancel" class="default">OK</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgScan" class="win wide scan" aria-label="Scan business card">
+  <form method="dialog" id="scanForm" novalidate>
+    <h2>Scan Business Card</h2>
+    <section id="scanCapture">
+      <p class="hint">Take a photo of a business card, or choose one you already have. The text is read right here in your browser &mdash; the photo is not uploaded anywhere.</p>
+      <div class="scanbtns">
+        <button type="button" id="scanTake" class="default"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M9.4 4h5.2l1.5 2H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2.9l1.5-2zM12 8.5a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg> Take photo</button>
+        <button type="button" id="scanChoose">Choose image&hellip;</button>
+        <button type="button" id="scanWebcam" hidden>Use webcam</button>
+        <button type="button" id="scanManual" class="link">Type it in instead</button>
+      </div>
+      <div id="scanCam" hidden>
+        <video id="scanVideo" playsinline muted></video>
+        <div class="buttons"><button type="button" id="scanSnap" class="default">Capture</button><button type="button" id="scanCamStop">Stop camera</button></div>
+      </div>
+      <div id="scanPreviewWrap" hidden>
+        <canvas id="scanPreview" aria-label="Photo preview"></canvas>
+        <div class="rot"><button type="button" id="scanRotL" title="Rotate left and read again" aria-label="Rotate left">&#10226;</button><button type="button" id="scanRotR" title="Rotate right and read again" aria-label="Rotate right">&#10227;</button></div>
+      </div>
+      <div id="scanProgress" hidden><progress id="scanBar" max="1"></progress><span id="scanStatus"></span></div>
+      <p id="scanError" class="err" role="alert" hidden></p>
+      <div id="scanErrorBtns" class="buttons left" hidden><button type="button" id="scanRetry">Try again</button><button type="button" id="scanManual2">Type it in instead</button></div>
+      <p class="hint small">Tips: fill the frame with the card, use good light, avoid glare. The first scan downloads the OCR engine (about 7&nbsp;MB, then cached).</p>
+    </section>
+    <section id="scanReview" hidden>
+      <div class="scancols">
+        <div class="scanleft">
+          <canvas id="scanThumb" aria-label="Scanned photo"></canvas>
+          <label class="stack-label">Text read from the card <span id="scanConf" class="hint"></span>
+            <textarea id="scanRaw" rows="9" spellcheck="false"></textarea></label>
+          <button type="button" id="scanReparse" title="Fill the fields again from the text above (after you fix it)">Re-read fields from text</button>
+        </div>
+        <div class="scanright">
+          <div class="sgrid">
+            <label for="sf_company">Company</label><input id="sf_company" autocomplete="off">
+            <label for="sf_name">Name</label><input id="sf_name" autocomplete="off">
+            <label for="sf_title">Title</label><input id="sf_title" autocomplete="off">
+            <label for="sf_office">Office</label><input id="sf_office" type="tel" autocomplete="off">
+            <label for="sf_cell">Cell</label><input id="sf_cell" type="tel" autocomplete="off">
+            <label for="sf_fax">Fax</label><input id="sf_fax" type="tel" autocomplete="off">
+            <label for="sf_tollfree">Toll-free</label><input id="sf_tollfree" type="tel" autocomplete="off">
+            <label for="sf_other">Other phone</label><input id="sf_other" type="tel" autocomplete="off">
+            <label for="sf_email">Email</label><input id="sf_email" type="email" autocomplete="off">
+            <label for="sf_website">Website</label><input id="sf_website" autocomplete="off">
+            <label for="sf_address">Street</label><input id="sf_address" autocomplete="off">
+            <label for="sf_city">City</label>
+            <span class="csz"><input id="sf_city" autocomplete="off" aria-label="City"><input id="sf_state" maxlength="2" autocomplete="off" aria-label="State" placeholder="ST"><input id="sf_zip" maxlength="10" autocomplete="off" aria-label="ZIP" placeholder="ZIP"></span>
+          </div>
+          <hr>
+          <div class="sgrid">
+            <label for="scanIndex">Index line</label><input id="scanIndex" maxlength="39" autocomplete="off">
+            <label for="scanTarget">Save to file</label><select id="scanTarget"></select>
+            <label for="scanNewFile" id="scanNewFileLbl" class="nf" hidden>New file</label>
+            <span id="scanNewFileRow" hidden><input id="scanNewFile" maxlength="40" placeholder="e.g. VENDORS" autocomplete="off"></span>
+          </div>
+          <label class="check"><input type="checkbox" id="scanKeepPhoto"> Keep the photo on the card <span class="hint">(uses browser storage)</span></label>
+          <div class="cardprev"><div class="cpt">Card preview</div><pre id="scanCardPreview"></pre></div>
+        </div>
+      </div>
+    </section>
+    <div class="buttons">
+      <button type="button" id="scanBack" hidden>&#8592; Rescan</button>
+      <button type="button" id="scanSave" class="default" hidden>Save card</button>
+      <button value="cancel" formnovalidate>Cancel</button>
+    </div>
+  </form>
+  <input type="file" id="scanFileCam" accept="image/*" capture="environment" hidden>
+  <input type="file" id="scanFile" accept="image/*" hidden>
+</dialog>
+
+<dialog id="dlgSignIn" class="win" aria-label="Sign in to QC sync">
+  <form method="dialog" id="siForm" novalidate>
+    <h2>Sign in to QC sync</h2>
+    <p class="hint" id="siHint">Use your QC app username and PIN. Once signed in, the Customers file and the files you share stay in sync with QC on every device.</p>
+    <label id="siUserRow"><span id="siUserLabel">Username</span><input id="siUser" autocomplete="username" autocapitalize="off" spellcheck="false"></label>
+    <label id="siPassRow"><span id="siPassLabel">PIN</span><input id="siPass" type="password" autocomplete="off" inputmode="numeric"></label>
+    <label id="siCodeRow" hidden>Code from the e-mail<input id="siCode" inputmode="numeric" autocomplete="one-time-code"></label>
+    <p id="siMsg" class="hint" role="status" hidden></p>
+    <div class="buttons"><button type="button" id="siGo" class="default">Sign in</button><button value="cancel" formnovalidate>Cancel</button></div>
+  </form>
+</dialog>
+
+<input type="file" id="importCrd" accept=".crd,.CRD" multiple hidden>
+<input type="file" id="importJson" accept=".json,application/json" hidden>
+<div id="printArea" aria-hidden="true"></div>
+
+<script src="config.js"></script>
+<script src="crd.js"></script>
+<script src="scan.js"></script>
+<script src="sync.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

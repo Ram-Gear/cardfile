@@ -1,0 +1,17 @@
+[
+ {"name": "OCR noise: O for 0, Ce11 label, spaced @",
+  "text": "BAYVIEW BEARING SUPPLY, INC.\nKevin Smith\nInside Sales Manager\n1234 Industrial Blvd, Suite 200\nCorpus Christi, TX 78405\nOffice: (361) 555-O142\nCe11: 361.555.0199\nFax: 361-555-0143\nkevin.smith @example.com\nwww.example.com",
+  "expected": {"company": "BAYVIEW BEARING SUPPLY, INC.", "name": "Kevin Smith", "title": "Inside Sales Manager", "office": "361-555-0142", "cell": "361-555-0199", "fax": "361-555-0143", "email": "kevin.smith@example.com", "website": "www.example.com", "address": "1234 Industrial Blvd, Suite 200", "city": "Corpus Christi", "state": "TX", "zip": "78405"}},
+ {"name": "two columns merged onto one line by OCR",
+  "text": "Bayview Bearing Supply, Inc.\nKevin Smith Office: (361) 555-0142\nInside Sales Manager Cell: 361.555.0199\n1234 Industrial Blvd, Suite 200 Fax: 361-555-0143\nCorpus Christi, TX 78405\nkevin.smith@example.com www.example.com",
+  "expected": {"company": "Bayview Bearing Supply, Inc.", "name": "Kevin Smith", "title": "Inside Sales Manager", "office": "361-555-0142", "cell": "361-555-0199", "fax": "361-555-0143", "address": "1234 Industrial Blvd, Suite 200", "city": "Corpus Christi", "state": "TX", "zip": "78405"}},
+ {"name": "no phone labels, 'fax' after the number, street + city on one line without commas",
+  "text": "ACME TOOL & DIE\nJohn Q. Public\nOwner\n500 Main St. Sinton TX 78387\n361-555-0111\n361-555-0112 fax\njohn@acmetool.example.com",
+  "expected": {"company": "ACME TOOL & DIE", "name": "John Q. Public", "title": "Owner", "office": "361-555-0111", "fax": "361-555-0112", "email": "john@acmetool.example.com", "address": "500 Main St.", "city": "Sinton", "state": "TX", "zip": "78387"}},
+ {"name": "garbage marks, toll-free by area code, P.O. Box, full state name",
+  "text": "| © \nRIVERBEND PUMP & VALVE CORP\n\nSusan B. Ortiz\nRegional Sales Rep\nP.O. Box 812\nBeeville, Texas 78102\n(800) 555-0166\nM: 361-555-0167\nsortiz@example.org\n~",
+  "expected": {"company": "RIVERBEND PUMP & VALVE CORP", "name": "Susan B. Ortiz", "title": "Regional Sales Rep", "tollfree": "800-555-0166", "cell": "361-555-0167", "email": "sortiz@example.org", "address": "P.O. Box 812", "city": "Beeville", "state": "TX", "zip": "78102"}},
+ {"name": "no company line: falls back to web domain; title before name",
+  "text": "Purchasing Manager\nDavid Nguyen\nT 361.555.0150  F 361.555.0151\ndnguyen@ramtest.example.com\nhttps://www.ramtest-demo.com",
+  "expected": {"company": "RAMTEST-DEMO", "name": "David Nguyen", "title": "Purchasing Manager", "office": "361-555-0150", "fax": "361-555-0151", "website": "www.ramtest-demo.com"}}
+]

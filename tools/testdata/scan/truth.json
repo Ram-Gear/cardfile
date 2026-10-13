@@ -1,0 +1,88 @@
+{
+ "card1_clean.png": {
+  "desc": "clean flat scan, left aligned, labelled phones",
+  "expected": {
+   "company": "BAYVIEW BEARING SUPPLY, INC.",
+   "name": "Kevin Smith",
+   "title": "Inside Sales Manager",
+   "office": "361-555-0142",
+   "cell": "361-555-0199",
+   "fax": "361-555-0143",
+   "email": "kevin.smith@example.com",
+   "website": "www.example.com",
+   "address": "1234 Industrial Blvd, Suite 200",
+   "city": "Corpus Christi",
+   "state": "TX",
+   "zip": "78405"
+  },
+  "text": "BAYVIEW BEARING SUPPLY, INC.\nKevin Smith\nInside Sales Manager\n1234 Industrial Blvd, Suite 200\nCorpus Christi, TX 78405\nOffice: (361) 555-0142\nCell: 361.555.0199\nFax: 361-555-0143\nkevin.smith@example.com\nwww.example.com"
+ },
+ "card2_photo.jpg": {
+  "desc": "phone-camera style photo: card on a dark desk, tilted, blurred/noisy, 4032x3024 JPEG stored sideways (3024x4032 pixels) with EXIF Orientation=6 (needs EXIF rotation + downscale)",
+  "expected": {
+   "company": "LONE STAR GEAR WORKS LLC",
+   "name": "Maria L. Torres",
+   "title": "President",
+   "office": "361-555-0170",
+   "cell": "361-555-0188",
+   "tollfree": "800-555-0177",
+   "email": "mtorres@example.net",
+   "address": "P.O. Box 4471",
+   "city": "Victoria",
+   "state": "TX",
+   "zip": "77901"
+  },
+  "text": "LONE STAR GEAR WORKS LLC\nMaria L. Torres\nPresident\nP.O. Box 4471\nVictoria, Texas 77901\nTel 361-555-0170\nMobile (361) 555-0188\nToll Free 1-800-555-0177\nmtorres@example.net"
+ },
+ "card3_dark.png": {
+  "desc": "dark card with light text, name and title on one line, P/F phone labels on one line",
+  "expected": {
+   "company": "COASTAL HYDRAULIC SERVICES CO.",
+   "name": "JAMES R. PATEL",
+   "title": "Field Service Engineer",
+   "office": "361-555-0123",
+   "fax": "361-555-0124",
+   "email": "jpatel@example.org",
+   "website": "example.org/service",
+   "address": "880 Port Ave",
+   "city": "Ingleside",
+   "state": "TX",
+   "zip": "78362"
+  },
+  "text": "COASTAL HYDRAULIC SERVICES CO.\nJAMES R. PATEL  |  Field Service Engineer\n880 Port Ave, Ingleside, TX 78362\nP 361-555-0123   F 361-555-0124\njpatel@example.org\nexample.org/service"
+ },
+ "card4_serif.png": {
+  "desc": "centered serif layout, company without Inc/LLC, name + title on one line with a comma, extension, ZIP+4",
+  "expected": {
+   "company": "Brazos Valley Machine & Tool",
+   "name": "Robert Chen",
+   "title": "Purchasing Agent",
+   "office": "361-555-0101 EXT 12",
+   "email": "rchen@example.com",
+   "address": "2201 FM 1069",
+   "city": "Aransas Pass",
+   "state": "TX",
+   "zip": "78336-1234"
+  },
+  "text": "Brazos Valley Machine & Tool\nRobert Chen, Purchasing Agent\n2201 FM 1069\nAransas Pass TX 78336-1234\nPhone 361 555 0101 ext. 12\nrchen@example.com"
+ },
+ "card5_lowres_photo.jpg": {
+  "desc": "stress test: 1200x900 blurry, JPEG q55 photo of card 1 (card text ~12 px high)",
+  "expected": {
+   "company": "BAYVIEW BEARING SUPPLY, INC.",
+   "name": "Kevin Smith",
+   "title": "Inside Sales Manager",
+   "office": "361-555-0142",
+   "cell": "361-555-0199",
+   "fax": "361-555-0143",
+   "email": "kevin.smith@example.com",
+   "website": "www.example.com",
+   "address": "1234 Industrial Blvd, Suite 200",
+   "city": "Corpus Christi",
+   "state": "TX",
+   "zip": "78405"
+  },
+  "text": "BAYVIEW BEARING SUPPLY, INC.\nKevin Smith\nInside Sales Manager\n1234 Industrial Blvd, Suite 200\nCorpus Christi, TX 78405\nOffice: (361) 555-0142\nCell: 361.555.0199\nFax: 361-555-0143\nkevin.smith@example.com\nwww.example.com",
+  "stress": true
+ }
+}

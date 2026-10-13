@@ -1,0 +1,25 @@
+# Original source data and binaries: never commit
+*.CRD
+*.crd
+*.zip
+*.EXE
+*.exe
+crd/
+gcp2/
+
+# Generated / local
+app-screens/
+screens/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+node_modules/
+.wine*/
+*.log
+
+# Card data must never be committed (it lives in Supabase)
+data/
+cards.json
+cards.txt
+cardfile-extracted/
