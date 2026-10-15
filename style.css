@@ -376,3 +376,10 @@ body.locked #app { display: none; }
 .gatebox h1 { margin: 0 0 8px; font-size: 26px; }
 .gatebox p { margin: 0 0 18px; color: #444; }
 .gatebox button { font-size: 16px; padding: 8px 28px; }
+
+/* Help link: fixed top-right, above the sign-in screen too */
+#helpLink { position: fixed; top: 6px; right: 10px; z-index: 60; font-size: 13px; line-height: 1; padding: 6px 12px; border-radius: 999px;
+  background: rgba(255,255,255,.92); color: #1f3b57; text-decoration: none; box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+#helpLink:hover, #helpLink:focus { background: #fff; text-decoration: underline; }
+#titlebar { padding-right: 80px; }
+@media print { #helpLink { display: none; } }
