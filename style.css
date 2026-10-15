@@ -1,7 +1,7 @@
 /* Cardfile (Ram-Gear): modern theme. Same layout & workflow as Windows 3.1 Cardfile. */
 :root {
-  --bg: #eef2f7;
-  --bg-2: #e3e9f2;
+  --bg: #EAF7EA;
+  --bg-2: #EAF7EA;
   --surface: #ffffff;
   --surface-2: #f8fafc;
   --ink: #1f2937;
@@ -9,9 +9,10 @@
   --muted: #6b7280;
   --line: #e5e7eb;
   --line-strong: #d1d5db;
-  --accent: #2563eb;
+  --accent: #15803d;
+  --focus: #15803d;                 /* focus rings */
   --accent-ink: #ffffff;
-  --accent-soft: #dbeafe;
+  --accent-soft: #EAF7EA;
   --index-rule: #f87171;            /* the red line under an index card's title */
   --radius: 12px;
   --radius-sm: 8px;
@@ -37,11 +38,12 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 /* ---------- title bar ---------- */
 #titlebar {
   display: flex; justify-content: space-between; align-items: center; gap: 12px;
-  padding: 10px 18px; color: #fff; font-weight: 600; font-size: 15px; letter-spacing: .1px;
+  padding: 14px 18px; min-height: 52px; box-sizing: border-box; color: #fff; font-weight: 600; font-size: 16px; letter-spacing: .1px;
   background: linear-gradient(180deg, #2B3D47 0%, #1D2B33 100%);   /* dark slate, same as the other Ram-Gear apps (app-hub) */
 }
 #appTitle { display: inline-flex; align-items: center; }
-#appTitle::before { content: ""; width: 16px; height: 12px; margin-right: 10px; border-radius: 3px; background: #fff; box-shadow: 3px -3px 0 -1px rgba(255,255,255,.55); flex: none; }
+.tleft { display: inline-flex; align-items: center; min-width: 0; }
+#appIcon { width: 30px; height: 30px; margin-right: 11px; border-radius: 7px; flex: none; }
 #saveState { font-weight: 400; font-size: 12px; opacity: .85; white-space: nowrap; }
 
 /* ---------- menu bar ---------- */
@@ -52,7 +54,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .menu { position: relative; }
 .menu > button { background: none; border: 0; font: 500 14px var(--ui); padding: 6px 12px; border-radius: 7px; cursor: pointer; color: var(--ink); }
 .menu > button:hover { background: #f1f5f9; }
-.menu.open > button, .menu > button:focus-visible { background: var(--accent-soft); color: #1e40af; outline: none; }
+.menu.open > button, .menu > button:focus-visible { background: var(--accent-soft); color: #14532d; outline: none; }
 .menu ul {
   display: none; position: absolute; left: 0; top: calc(100% + 4px); min-width: 250px; margin: 0; padding: 6px; list-style: none;
   background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-pop);
@@ -67,7 +69,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .menu li button.checked::before { content: "\2713"; position: absolute; left: 10px; font-weight: 700; }
 .menu li hr { border: 0; border-top: 1px solid var(--line); margin: 5px 6px; }
 .menu .acc { color: var(--muted); font-size: 12px; }
-.menu li button:hover .acc, .menu li button:focus .acc { color: #dbeafe; }
+.menu li button:hover .acc, .menu li button:focus .acc { color: #EAF7EA; }
 
 /* ---------- toolbar / status strip ---------- */
 #statusbar {
@@ -76,7 +78,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 }
 #viewName { font-weight: 600; min-width: 84px; color: var(--ink); }
 #cardCount {
-  font-weight: 600; font-size: 13px; color: #1e40af; background: var(--accent-soft);
+  font-weight: 600; font-size: 13px; color: #14532d; background: var(--accent-soft);
   padding: 3px 10px; border-radius: 999px; min-width: 0; white-space: nowrap;
 }
 .navbtns { display: inline-flex; gap: 4px; }
@@ -92,7 +94,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 }
 #filePicker { max-width: 240px; }
 #quickSearch { width: 210px; }
-#filePicker:focus, #quickSearch:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+#filePicker:focus, #quickSearch:focus { outline: 2px solid var(--focus); border-color: var(--accent); }
 
 /* ---------- A–Z bar ---------- */
 #letterbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 16px; background: transparent; border: 0; }
@@ -124,11 +126,11 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
   height: 34px; min-height: 0; color: var(--ink-soft); font-weight: 500;
   border-bottom: 1px solid rgba(248, 113, 113, .35); transition: background .15s, color .15s;
 }
-.card.behind:hover { background: #f5f9ff; }
-.card.behind:hover .ctitle { background: #eff6ff; color: var(--ink); }
+.card.behind:hover { background: #f3fbf3; }
+.card.behind:hover .ctitle { background: #EAF7EA; color: var(--ink); }
 .card.front .ctitle { cursor: text; border-bottom: 2px solid var(--index-rule); padding-top: 9px; padding-bottom: 8px; font-size: 16px; }
 .filetag {
-  font: 600 11px var(--ui); letter-spacing: .3px; color: #1e40af; background: var(--accent-soft);
+  font: 600 11px var(--ui); letter-spacing: .3px; color: #14532d; background: var(--accent-soft);
   padding: 2px 8px; border-radius: 999px; white-space: nowrap;
 }
 .card .cbody { position: relative; }
@@ -138,7 +140,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
   white-space: pre-wrap; overflow-wrap: anywhere;
 }
 #cardView.fixedfont .card textarea { font-size: 14px; tab-size: 8; -moz-tab-size: 8; }
-.card textarea::selection { background: #bfdbfe; }
+.card textarea::selection { background: #d3efd3; }
 .card .cimg { position: absolute; right: 14px; top: 10px; max-width: 45%; max-height: 180px; image-rendering: pixelated; pointer-events: none; border-radius: 6px; }
 .card .cimg.big { position: static; display: block; margin: 12px auto 4px; max-width: 90%; max-height: 260px; image-rendering: auto; border-radius: 8px; }
 .card.hasimg textarea { padding-right: 25%; }
@@ -147,7 +149,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
   border-top: 1px solid var(--line); background: var(--surface-2); font-size: 13px; color: var(--muted);
 }
 .card .phones a {
-  color: #1d4ed8; text-decoration: none; background: var(--accent-soft); padding: 3px 10px; border-radius: 999px; font-weight: 500;
+  color: #166534; text-decoration: none; background: var(--accent-soft); padding: 3px 10px; border-radius: 999px; font-weight: 500;
 }
 .card .phones a::before { content: "\260E\FE0E  "; }
 .card .phones a:hover { background: var(--accent); color: #fff; }
@@ -164,7 +166,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 #cardList li .t { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 #cardList li.sel { background: var(--accent); color: var(--accent-ink); }
 #cardList li.sel .filetag { background: rgba(255, 255, 255, .2); color: #fff; }
-#cardList:focus-visible { outline: 2px solid var(--accent-soft); }
+#cardList:focus-visible { outline: 2px solid var(--focus); }
 
 /* ---------- dialogs ---------- */
 dialog.win {
@@ -179,7 +181,7 @@ dialog.win label { display: block; margin: 10px 0; color: var(--ink-soft); }
 dialog.win input[type=search], dialog.win input:not([type]), dialog.win select {
   font: 14px var(--ui); padding: 7px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--ink);
 }
-dialog.win input:focus, dialog.win select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+dialog.win input:focus, dialog.win select:focus { outline: 2px solid var(--focus); border-color: var(--accent); }
 dialog.win fieldset { display: inline-flex; gap: 10px; align-items: center; margin: 0 0 0 20px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 10px; }
 dialog.win fieldset legend { padding: 0 4px; font-size: 12px; color: var(--muted); }
 dialog.win fieldset label { display: inline; margin: 0; }
@@ -193,8 +195,8 @@ dialog.win u { text-decoration-color: var(--muted); }
 }
 .buttons button:hover { background: #f1f5f9; }
 .buttons button.default { background: var(--accent); border-color: var(--accent); color: #fff; outline: none; }
-.buttons button.default:hover { background: #1d4ed8; }
-.buttons button:focus-visible { outline: 3px solid var(--accent-soft); }
+.buttons button.default:hover { background: #166534; }
+.buttons button:focus-visible { outline: 3px solid var(--focus); }
 .hint { font-size: 12.5px; color: var(--muted); margin: 6px 0; }
 .msg { white-space: pre-wrap; max-width: 520px; line-height: 1.55; }
 ul.pick {
@@ -208,10 +210,10 @@ ul.pick li button, ul.pick li a {
 ul.pick li button:hover, ul.pick li button:focus, ul.pick li a:hover, ul.pick li a:focus { background: var(--accent); color: #fff; outline: none; }
 ul.pick li.current button { font-weight: 650; }
 ul.pick .meta { color: var(--muted); font-size: 12px; white-space: nowrap; }
-ul.pick li button:hover .meta, ul.pick li button:focus .meta, ul.pick li a:hover .meta { color: #dbeafe; }
+ul.pick li button:hover .meta, ul.pick li button:focus .meta, ul.pick li a:hover .meta { color: #EAF7EA; }
 ul.results li button { display: block; }
 ul.results .snip { display: block; margin-top: 2px; font: 12.5px/1.4 var(--ui); color: var(--muted); white-space: pre-wrap; }
-ul.results li button:hover .snip, ul.results li button:focus .snip { color: #e0e7ff; }
+ul.results li button:hover .snip, ul.results li button:focus .snip { color: #EAF7EA; }
 #openFilter, #searchAllInput { width: 100%; }
 #helpBody table { border-collapse: separate; border-spacing: 0; width: 100%; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 #helpBody td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
@@ -221,10 +223,10 @@ ul.results li button:hover .snip, ul.results li button:focus .snip { color: #e0e
 #btnScan {
   display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px 0 10px; cursor: pointer;
   font: 600 13px var(--ui); color: #fff; background: var(--accent); border: 1px solid var(--accent); border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(37, 99, 235, .25); transition: background .15s;
+  box-shadow: 0 1px 2px rgba(21, 128, 61, .25); transition: background .15s;
 }
-#btnScan:hover { background: #1d4ed8; }
-#btnScan:focus-visible { outline: 3px solid var(--accent-soft); }
+#btnScan:hover { background: #166534; }
+#btnScan:focus-visible { outline: 3px solid var(--focus); }
 
 /* ---------- scan business card dialog ---------- */
 dialog.win.scan { width: 900px; max-height: 94vh; overflow: hidden; }
@@ -238,8 +240,8 @@ dialog.scan .scanbtns button, dialog.scan .rot button, dialog.scan #scanReparse,
 }
 dialog.scan .scanbtns button:hover, dialog.scan .rot button:hover, dialog.scan #scanReparse:hover { background: #f1f5f9; }
 dialog.scan .scanbtns button.default { background: var(--accent); border-color: var(--accent); color: #fff; }
-dialog.scan .scanbtns button.default:hover { background: #1d4ed8; }
-dialog.scan .scanbtns button.link { background: none; border-color: transparent; box-shadow: none; color: #1d4ed8; text-decoration: underline; padding-left: 6px; }
+dialog.scan .scanbtns button.default:hover { background: #166534; }
+dialog.scan .scanbtns button.link { background: none; border-color: transparent; box-shadow: none; color: #166534; text-decoration: underline; padding-left: 6px; }
 dialog.scan .buttons.left { justify-content: flex-start; margin-top: 8px; }
 #scanCam video { display: block; width: 100%; max-height: 50vh; background: #0f172a; border-radius: 12px; }
 #scanPreviewWrap { position: relative; margin: 10px 0; text-align: center; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
@@ -265,7 +267,7 @@ dialog.scan .sgrid label { margin: 0; font-size: 13px; color: var(--muted); text
 dialog.scan .sgrid input, dialog.scan .sgrid select, dialog.scan .sgrid .csz input {
   width: 100%; font: 14px var(--ui); padding: 5px 9px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--ink);
 }
-dialog.scan .sgrid input:focus, #scanRaw:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+dialog.scan .sgrid input:focus, #scanRaw:focus { outline: 2px solid var(--focus); border-color: var(--accent); }
 dialog.scan .sgrid input:placeholder-shown { background: #fbfcfe; }
 .sgrid .csz { display: grid; grid-template-columns: minmax(0, 1fr) 52px 92px; gap: 6px; }
 #scanIndex { font-weight: 600 !important; text-transform: uppercase; }
@@ -292,7 +294,7 @@ dialog.scan .buttons #scanBack { margin-right: auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
 #syncError { max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 12px var(--ui); color: #b91c1c; background: none; border: 0; cursor: pointer; text-decoration: underline dotted; padding: 0; }
 #shareChip { font: 600 12px var(--ui); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
-#shareChip.on { color: #1e40af; background: var(--accent-soft); }
+#shareChip.on { color: #14532d; background: var(--accent-soft); }
 #shareChip.off { color: var(--muted); background: #f1f5f9; }
 .qcbadge {
   flex: none; font: 600 11px var(--ui); letter-spacing: .2px; color: #065f46; background: #d1fae5; border: 1px solid #a7f3d0;
@@ -314,7 +316,7 @@ dialog.scan .buttons #scanBack { margin-right: auto; }
 #dlgSignIn { width: 420px; }
 #dlgSignIn label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
 #dlgSignIn input { font: 14px var(--ui); padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; }
-#dlgSignIn input:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+#dlgSignIn input:focus { outline: 2px solid var(--focus); border-color: var(--accent); }
 #siMsg.err { margin: 8px 0 0; }
 
 #dlgFind { position: fixed; top: 130px; right: 24px; left: auto; bottom: auto; margin: 0; z-index: 100; }
@@ -369,7 +371,7 @@ dialog.scan .buttons #scanBack { margin-right: auto; }
 }
 
 /* sign-in screen (signed out: no cards are shown) */
-#gate { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, #1f3b57, #2f5f86); z-index: 50; }
+#gate { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, #14532d, #1f7a3d); z-index: 50; }
 #gate[hidden] { display: none; }
 body.locked #app { display: none; }
 .gatebox { background: #fff; border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.3); padding: 32px 36px; max-width: 360px; text-align: center; }
@@ -378,8 +380,8 @@ body.locked #app { display: none; }
 .gatebox button { font-size: 16px; padding: 8px 28px; }
 
 /* Help link: fixed top-right, above the sign-in screen too */
-#helpLink { position: fixed; top: 6px; right: 10px; z-index: 60; font-size: 13px; line-height: 1; padding: 6px 12px; border-radius: 999px;
-  background: rgba(255,255,255,.92); color: #1f3b57; text-decoration: none; box-shadow: 0 1px 4px rgba(0,0,0,.25); }
+#helpLink { position: fixed; top: 13px; right: 10px; z-index: 60; font-size: 13px; line-height: 1; padding: 6px 12px; border-radius: 999px;
+  background: rgba(255,255,255,.92); color: #14532d; text-decoration: none; box-shadow: 0 1px 4px rgba(0,0,0,.25); }
 #helpLink:hover, #helpLink:focus { background: #fff; text-decoration: underline; }
 #titlebar { padding-right: 80px; }
 @media print { #helpLink { display: none; } }

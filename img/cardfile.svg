@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Cardfile</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2E7386"/>
+      <stop offset="1" stop-color="#245E6E"/>
+    </linearGradient>
+  </defs>
+  <!-- tile: identical on every icon -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- stacked index cards -->
+  <rect x="160" y="124" width="252" height="164" rx="22" fill="#9FD3E1"/>
+  <rect x="128" y="174" width="252" height="164" rx="22" fill="#FFFFFF" stroke="url(#bg)" stroke-width="16" paint-order="stroke"/>
+  <rect x="96" y="224" width="252" height="164" rx="22" fill="#FFFFFF" stroke="url(#bg)" stroke-width="16" paint-order="stroke"/>
+  <!-- header rule + text lines -->
+  <rect x="124" y="254" width="196" height="26" rx="13" fill="url(#bg)"/>
+  <rect x="124" y="302" width="150" height="20" rx="10" fill="url(#bg)"/>
+  <rect x="124" y="340" width="110" height="20" rx="10" fill="url(#bg)"/>
+</svg>
