@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cardfile Help – Ram-Gear</title>
+<link rel="icon" href="img/cardfile.svg">
+<style>
+  body { margin: 0; font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; color: #1f2937; background: #EAF7EA; }
+  header { background: linear-gradient(180deg, #2B3D47, #1D2B33); color: #fff; padding: 12px 20px; display: flex; align-items: center; gap: 12px; }
+  header img { width: 34px; height: 34px; } header h1 { margin: 0; font-size: 20px; }
+  main { max-width: 860px; margin: 0 auto; padding: 8px 20px 40px; }
+  section { background: #fff; border-radius: 12px; border-top: 4px solid #15803d; padding: 4px 22px 14px; margin: 18px 0; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  h2 { color: #14532d; } h3 { color: #166534; margin-bottom: 4px; }
+  a { color: #15803d; font-weight: 600; } kbd { background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; padding: 0 5px; font-size: 14px; }
+  table { border-collapse: collapse; width: 100%; } th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+  nav ul { columns: 2; } :focus-visible { outline: 3px solid #15803d; }
+  .ask { margin: -8px 0 8px; font-size: 14px; } .try { border: 1px solid #d1fae5; background: #f7fdf8; border-radius: 10px; padding: 4px 14px 8px; margin: 10px 0; }
+  .res.ok { color: #166534; font-weight: 700; } .res.bad { color: #b91c1c; font-weight: 700; } button { font: inherit; padding: 4px 14px; border-radius: 8px; border: 1.5px solid #15803d; background: #15803d; color: #fff; cursor: pointer; }
+</style>
+</head>
+<body>
+<header><img src="img/cardfile.svg" alt=""><h1>Cardfile Help</h1></header>
+<main>
+<p><a href="./">← Back to Cardfile</a></p>
+<nav aria-label="Contents"><ul>
+  <li><a href="#what">What Cardfile does</a></li><li><a href="#signin">Sign-in screen</a></li>
+  <li><a href="#card">Card view</a></li><li><a href="#list">List view</a></li>
+  <li><a href="#scan">The scanner</a></li><li><a href="#menus">File and other menus</a></li>
+  <li><a href="#tasks">Common tasks</a></li><li><a href="#keys">Keys</a></li>
+  <li><a href="#roles">Roles</a></li><li><a href="#practice">Try it</a></li><li><a href="#trouble">Troubleshooting</a></li>
+</ul></nav>
+
+<section id="what"><h2>What Cardfile does</h2><p class="ask"><a class="askGrok" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile.%20Please%20read%20https%3A%2F%2Fram-gear.github.io%2Fcardfile%2Fhelp.html%20first%2C%20then%20help%20me%20with%20what%20Cardfile%20does." target="_blank" rel="noopener noreferrer">Ask Grok about this</a></p>
+<p>Cardfile is Ram-Gear's web card file for customer and shop records, modelled on the classic Windows Cardfile. Each card has a one-line <b>index line</b> (up to 39 characters) and free text below it. Cards are grouped into <b>card files</b> (categories) that you choose from the <b>File:</b> picker.</p>
+<p>You sign in with your QC Form username and PIN. The built-in <b>Customers</b> file is always shared with QC, and any other file can be shared with QC too, so it stays in sync on every device. Cardfile can also import and export classic <code>.CRD</code> files, and it can read a business card from a photo.</p></section>
+
+<section id="signin"><h2>Sign-in screen</h2><p class="ask"><a class="askGrok" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile.%20Please%20read%20https%3A%2F%2Fram-gear.github.io%2Fcardfile%2Fhelp.html%20first%2C%20then%20help%20me%20with%20the%20sign-in%20screen." target="_blank" rel="noopener noreferrer">Ask Grok about this</a></p>
+<p>When you are signed out, no cards are shown. Type your QC <b>Username</b> and <b>PIN</b> and press <b>Sign in</b> (or <kbd>Enter</kbd>). These are the same details you use in the QC app.</p>
+<p>If your account has no Cardfile access, the screen says <i>“You don’t have Cardfile access yet. Ask a QC admin to give you Cardfile access, then sign in again.”</i> Use <b>Sign in as someone else</b> or <b>Sign out</b>.</p></section>
+
+<section id="card"><h2>Card view</h2><p class="ask"><a class="askGrok" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile.%20Please%20read%20https%3A%2F%2Fram-gear.github.io%2Fcardfile%2Fhelp.html%20first%2C%20then%20help%20me%20with%20the%20card%20view." target="_blank" rel="noopener noreferrer">Ask Grok about this</a></p>
+<p>This view shows one card at a time, with the cards stacked behind it. The index line is at the top and the card text below it. Use the ◀ ▶ buttons or <kbd>PgUp</kbd>/<kbd>PgDn</kbd> to flip cards, or click a letter on the A–Z bar to jump to cards starting with that letter. Double-click the index line to edit it. The toolbar also has the <b>scan</b> (camera) button, the <b>Sync with QC</b> button and the search box. A chip shows whether the current file is shared with QC.</p></section>
+
+<section id="list"><h2>List view</h2><p class="ask"><a class="askGrok" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile.%20Please%20read%20https%3A%2F%2Fram-gear.github.io%2Fcardfile%2Fhelp.html%20first%2C%20then%20help%20me%20with%20the%20list%20view." target="_blank" rel="noopener noreferrer">Ask Grok about this</a></p>
+<p>Choose <b>View → List</b> to see only the index lines, one per row. Click a row to select it, and type a letter to jump to the first card starting with that letter. Choose <b>View → Card</b> to go back. <b>View → Fixed-width text</b> lines up columns in the card text.</p></section>
+
+<section id="scan"><h2>The scanner</h2><p class="ask"><a class="askGrok" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile.%20Please%20read%20https%3A%2F%2Fram-gear.github.io%2Fcardfile%2Fhelp.html%20first%2C%20then%20help%20me%20with%20the%20business-card%20scanner." target="_blank" rel="noopener noreferrer">Ask Grok about this</a></p>
+<p>Press <kbd>F8</kbd>, choose <b>Card → Scan business card…</b>, or press the camera button. Then:</p>
+<ol><li><b>Take photo</b> (phone camera), <b>Choose image…</b> (a saved picture), or <b>Use webcam</b> and then <b>Capture</b>. You can also choose <b>Type it in instead</b>.</li>
+<li>Cardfile reads the text from the picture. If it’s sideways, use the rotate buttons to turn it and read it again. If reading fails, use <b>Try again</b>.</li>
+<li>Check the text and fields. If you fix the text, <b>Re-read fields from text</b> fills the fields again.</li>
+<li>Press <b>Save card</b>, or <b>← Rescan</b> to start over.</li></ol></section>
+
+<section id="menus"><h2>Menus</h2><p class="ask"><a class="askGrok" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile.%20Please%20read%20https%3A%2F%2Fram-gear.github.io%2Fcardfile%2Fhelp.html%20first%2C%20then%20help%20me%20with%20the%20menus." target="_blank" rel="noopener noreferrer">Ask Grok about this</a></p>
+<h3>File</h3><p>New card file…, Open… (<kbd>Ctrl+O</kbd>), Print and Print All, Import .CRD file(s)…, Export as .CRD (Cardfile 3.0), Export Backup (JSON), Restore Backup (JSON)…, Phone settings… (area code added to 7-digit numbers), Delete this card file…, and Reset (reload cards)…. When QC sync is on, the File menu also has Share with QC, Sync with QC now, Full resync with QC, and Sign in / Sign out of QC sync.</p>
+<h3>Edit</h3><p>Undo (<kbd>Ctrl+Z</kbd>), Index… (<kbd>F6</kbd>, which edits the index line), and Restore (undoes all changes to the card in front since you brought it forward).</p>
+<h3>View</h3><p>Card, List, and Fixed-width text.</p>
+<h3>Card</h3><p>Add… (<kbd>F7</kbd>), Delete, Duplicate, Autodial (call)… (<kbd>F5</kbd>), and Scan business card… (<kbd>F8</kbd>).</p>
+<h3>Search</h3><p>Go To… (<kbd>F4</kbd>, which finds the next card whose index line contains the text), Find… and Find Next (<kbd>F3</kbd>, which search the card text), and Search All Files… (<kbd>Ctrl+Shift+F</kbd>).</p>
+<h3>Help</h3><p>Keys and Commands (<kbd>F1</kbd>), User guide (this page), and About Cardfile….</p></section>
+
+<section id="tasks"><h2>Common tasks</h2><p class="ask"><a class="askGrok" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile.%20Please%20read%20https%3A%2F%2Fram-gear.github.io%2Fcardfile%2Fhelp.html%20first%2C%20then%20help%20me%20with%20common%20tasks." target="_blank" rel="noopener noreferrer">Ask Grok about this</a></p>
+<h3>Add a card</h3><ol><li>Choose the file in the <b>File:</b> picker.</li><li>Press <kbd>F7</kbd> (Card → Add…).</li><li>Type the index line and press OK.</li><li>Type the card text.</li></ol>
+<h3>Find a card</h3><ol><li>Type in the search box, or press <kbd>Ctrl+Shift+F</kbd> to search every file.</li><li>Or press <kbd>F4</kbd> to search index lines, or use Search → Find… to search card text, then <kbd>F3</kbd> for the next match.</li></ol>
+<h3>Call a customer</h3><ol><li>Open the card.</li><li>Press <kbd>F5</kbd> (Autodial).</li><li>Pick the number. If 7-digit numbers need an area code, set one in File → Phone settings….</li></ol>
+<h3>Share a file with QC</h3><ol><li>Choose the file.</li><li>Choose File → Share with QC. The chip on the toolbar shows that it’s shared.</li></ol>
+<h3>Bring in old Cardfile files</h3><ol><li>Choose File → Import .CRD file(s)….</li><li>Pick one or more <code>.CRD</code> files.</li></ol>
+<h3>Make a backup</h3><ol><li>Choose File → Export Backup (JSON).</li><li>To bring it back later, choose File → Restore Backup (JSON)….</li></ol>
+<h3>Undo a mistake</h3><ol><li>Press <kbd>Ctrl+Z</kbd> (outside the card text) to undo the last card operation, or use Edit → Restore to undo every change to the card in front.</li></ol></section>
+
+<section id="keys"><h2>Keys</h2><p class="ask"><a class="askGrok" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile.%20Please%20read%20https%3A%2F%2Fram-gear.github.io%2Fcardfile%2Fhelp.html%20first%2C%20then%20help%20me%20with%20the%20keyboard%20shortcuts." target="_blank" rel="noopener noreferrer">Ask Grok about this</a></p><table>
+<tr><th>Key</th><th>Does</th></tr>
+<tr><td><kbd>F1</kbd></td><td>Keys and Commands</td></tr><tr><td><kbd>F3</kbd></td><td>Find Next</td></tr>
+<tr><td><kbd>F4</kbd></td><td>Go To</td></tr><tr><td><kbd>F5</kbd></td><td>Autodial</td></tr>
+<tr><td><kbd>F6</kbd></td><td>Edit index line</td></tr><tr><td><kbd>F7</kbd></td><td>Add card</td></tr>
+<tr><td><kbd>F8</kbd></td><td>Scan business card</td></tr><tr><td><kbd>PgUp</kbd> / <kbd>PgDn</kbd></td><td>Previous / next card</td></tr>
+<tr><td><kbd>Ctrl+Home</kbd> / <kbd>Ctrl+End</kbd></td><td>First / last card</td></tr><tr><td><kbd>Ctrl+Shift+letter</kbd></td><td>Jump to a letter</td></tr>
+<tr><td><kbd>Ctrl+Shift+F</kbd></td><td>Search all files</td></tr><tr><td><kbd>Ctrl+O</kbd></td><td>Open a card file</td></tr>
+<tr><td><kbd>Ctrl+Z</kbd></td><td>Undo</td></tr><tr><td><kbd>Alt+F/E/V/C/S/H</kbd></td><td>Open a menu</td></tr></table></section>
+
+<section id="roles"><h2>Roles</h2><p class="ask"><a class="askGrok" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile.%20Please%20read%20https%3A%2F%2Fram-gear.github.io%2Fcardfile%2Fhelp.html%20first%2C%20then%20help%20me%20with%20roles%20(who%20can%20view%2C%20edit%20and%20delete)." target="_blank" rel="noopener noreferrer">Ask Grok about this</a></p><p>A QC admin gives each person a Cardfile role:</p><table>
+<tr><th>Role</th><th>Can do</th></tr>
+<tr><td>No access</td><td>Sees no cards. Cards kept in the browser are cleared, and the sign-in screen asks you to get access from a QC admin.</td></tr>
+<tr><td>Viewer</td><td>Read, search, print, export and autodial. Can’t add, edit, scan, import or delete.</td></tr>
+<tr><td>Editor</td><td>Everything a viewer can do, plus add, edit, duplicate, scan and import cards. Can’t delete cards or card files.</td></tr>
+<tr><td>Admin</td><td>Everything, including deleting cards and card files.</td></tr></table>
+<p>If you try to delete something the server doesn’t allow, the card is put back.</p></section>
+
+<section id="practice"><h2>Try it</h2><p class="ask"><a class="askGrok" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile.%20Please%20read%20https%3A%2F%2Fram-gear.github.io%2Fcardfile%2Fhelp.html%20first%2C%20then%20help%20me%20with%20the%20practice%20questions." target="_blank" rel="noopener noreferrer">Ask Grok about this</a></p>
+<p>Practice on these made-up sample cards. Everything runs in this page; nothing is saved or sent.</p>
+<ul id="sampleCards"></ul>
+<div class="try" id="try1"><h3>1. Find a card with search</h3><p>Type a search word that finds <b>only</b> the card for <i>Bluebird Test Supply</i>.</p>
+<input id="t1in" aria-label="Search text"> <button type="button" id="t1go">Check</button><p class="res" id="t1res" role="status"></p></div>
+<div class="try" id="try2"><h3>2. Roles</h3><p>Which role can delete a card?</p>
+<label><input type="radio" name="t2" value="viewer"> Viewer</label> <label><input type="radio" name="t2" value="editor"> Editor</label> <label><input type="radio" name="t2" value="admin"> Admin</label>
+<button type="button" id="t2go">Check</button><p class="res" id="t2res" role="status"></p></div>
+<div class="try" id="try3"><h3>3. Keys</h3><p>Which key adds a new card?</p>
+<label><input type="radio" name="t3" value="F5"> F5</label> <label><input type="radio" name="t3" value="F7"> F7</label> <label><input type="radio" name="t3" value="F8"> F8</label>
+<button type="button" id="t3go">Check</button><p class="res" id="t3res" role="status"></p></div>
+</section>
+<section id="trouble"><h2>Troubleshooting</h2><p class="ask"><a class="askGrok" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile.%20Please%20read%20https%3A%2F%2Fram-gear.github.io%2Fcardfile%2Fhelp.html%20first%2C%20then%20help%20me%20with%20troubleshooting." target="_blank" rel="noopener noreferrer">Ask Grok about this</a></p><ul>
+<li><b>Sign-in fails:</b> check your username and PIN in the QC app. They are the same.</li>
+<li><b>“You don’t have Cardfile access yet”:</b> ask a QC admin to give you Cardfile access, then sign in again.</li>
+<li><b>A red sync message on the toolbar:</b> click it to see the problem. Then try File → Sync with QC now, or File → Full resync with QC.</li>
+<li><b>Can’t delete a Customers card:</b> cards linked to a QC customer are removed in the QC app. The built-in Customers file can’t be deleted.</li>
+<li><b>Menu items are greyed out or missing:</b> your role may not allow them (see Roles).</li>
+<li><b>The scanner can’t read a card:</b> use good light and hold the camera flat, rotate the picture, fix the text and press Re-read fields, or choose Type it in instead.</li>
+<li><b>Things look wrong in this browser:</b> File → Reset (reload cards)… clears this browser and reloads. Cards and changes kept only in this browser are lost, and shared cards download again.</li>
+</ul></section>
+<p><a href="./">← Back to Cardfile</a></p>
+</main>
+<script>
+// Practice boxes: made-up sample cards only; no network, storage, keys or real data.
+(function () {
+  const CARDS = [
+    { title: 'Bluebird Test Supply', text: 'Sample contact: Pat Example\nWidgets and test parts' },
+    { title: 'Cedar Practice Works', text: 'Sample contact: Lee Demo\nWidgets and brackets' },
+    { title: 'Maple Mock Machining', text: 'Sample contact: Sam Placeholder\nGears' }];
+  const ul = document.getElementById('sampleCards');
+  CARDS.forEach(c => { const li = document.createElement('li'); li.textContent = c.title + ' — ' + c.text.replace('\n', '; '); ul.append(li); });
+  function show(id, ok, why) { const p = document.getElementById(id); p.className = 'res ' + (ok ? 'ok' : 'bad'); p.textContent = ok ? 'Correct' + (why ? ': ' + why : '') : 'Incorrect: ' + why; }
+  function picked(n) { const r = document.querySelector('input[name="' + n + '"]:checked'); return r && r.value; }
+  document.getElementById('t1go').onclick = () => {
+    const q = document.getElementById('t1in').value.trim().toLowerCase();
+    if (!q) return show('t1res', false, 'type a word first.');
+    const hits = CARDS.filter(c => (c.title + '\n' + c.text).toLowerCase().includes(q));
+    if (!hits.length) return show('t1res', false, 'no sample card contains "' + q + '".');
+    if (hits.length > 1) return show('t1res', false, '"' + q + '" matches ' + hits.length + ' cards: ' + hits.map(h => h.title).join(', ') + '. Pick a word only that card has.');
+    if (hits[0].title !== 'Bluebird Test Supply') return show('t1res', false, 'that finds ' + hits[0].title + ', not Bluebird Test Supply.');
+    show('t1res', true, 'only Bluebird Test Supply matches.');
+  };
+  document.getElementById('t2go').onclick = () => {
+    const v = picked('t2'), why = { viewer: 'viewers can only read, search, print and export.', editor: 'editors can add and edit but can’t delete.' };
+    if (!v) return show('t2res', false, 'choose a role first.');
+    v === 'admin' ? show('t2res', true, 'only admins can delete cards and card files.') : show('t2res', false, why[v]);
+  };
+  document.getElementById('t3go').onclick = () => {
+    const v = picked('t3'), why = { F5: 'F5 is Autodial.', F8: 'F8 scans a business card.' };
+    if (!v) return show('t3res', false, 'choose a key first.');
+    v === 'F7' ? show('t3res', true, 'F7 is Card → Add….') : show('t3res', false, why[v]);
+  };
+})();
+</script>
+</body>
+</html>

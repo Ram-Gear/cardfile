@@ -69,11 +69,14 @@ async def delete_card(pg):
 
 
 async def open_sign_in(pg):
-    await pg.click('#gateSignIn' if await pg.is_visible('#gateSignIn') else '#btnSync'); await pg.wait_for_selector('#dlgSignIn[open]')
+    # the sign-in form sits on the sign-in screen (QC-style card); "Sign in as someone else" reveals it again
+    if await pg.is_visible('#gateSignIn'): await pg.click('#gateSignIn')
+    elif not await pg.is_visible('#siUser'): await pg.click('#btnSync')
+    await pg.wait_for_selector('#siUser', state='visible')
 
 
 async def sign_in(pg, user, pin, wait=True):
-    if not await pg.is_visible('#dlgSignIn'):
+    if not await pg.is_visible('#siUser'):
         await open_sign_in(pg)
     await pg.fill('#siUser', user); await pg.fill('#siPass', pin); await pg.click('#siGo')
     if wait:

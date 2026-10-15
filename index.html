@@ -8,16 +8,30 @@
 </head>
 <body>
 <!-- Help: a FIXED question only; never put card, customer or user data in this link -->
-<a id="helpLink" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile%2C%20a%20web%20card-file%20app%20for%20customer%20and%20shop%20records%20that%20signs%20in%20with%20a%20QC%20Form%20login.%20Can%20you%20give%20me%20pointers%20on%20how%20to%20use%20it%3F" target="_blank" rel="noopener noreferrer" title="Get help using Cardfile (opens Grok in a new tab)">Help</a>
-<div id="gate" hidden>
-  <div class="gatebox">
-    <h1>Cardfile</h1>
-    <p id="gateText">Sign in with your QC username and PIN to see the cards.</p>
-    <button type="button" id="gateSignIn" class="default">Sign in</button>
-    <button type="button" id="gateSignOut" hidden>Sign out</button>
-    <p class="hint" id="gateMsg" role="status"></p>
-  </div>
-</div>
+<a id="helpLink" href="https://grok.com/?q=I'm%20using%20Ram-Gear's%20Cardfile%2C%20a%20web%20card-file%20app%20for%20customer%20and%20shop%20records%20that%20signs%20in%20with%20a%20QC%20Form%20login.%20Please%20read%20https%3A%2F%2Fram-gear.github.io%2Fcardfile%2Fhelp.html%20first%2C%20then%20give%20me%20pointers." target="_blank" rel="noopener noreferrer" title="Get help using Cardfile (opens Grok in a new tab)">Help</a>
+<!-- Sign-in screen: same layout as QC Form's (photo, charcoal overlay, white card with an accent top edge) -->
+<section id="gate" class="login" hidden aria-label="Sign in">
+  <div class="login-bg" aria-hidden="true"></div>
+  <form class="login-card" id="siForm" autocomplete="on" novalidate onsubmit="return false">
+    <img class="login-logo" src="img/cardfile.svg" alt="" width="96" height="96">
+    <h1 class="login-company">Cardfile</h1>
+    <p class="login-address">Ram-Gear Manufacturing Incorporated</p>
+    <p class="login-app"><b>Customer card file</b></p>
+    <p class="login-text" id="gateText">Sign in with your QC username and PIN to see the cards.</p>
+    <p class="login-msg" id="gateMsg" role="status"></p>
+    <div id="siFields">
+      <label class="fld" id="siUserRow"><span id="siUserLabel">Username</span><input id="siUser" autocomplete="username" autocapitalize="off" spellcheck="false"></label>
+      <label class="fld" id="siPassRow"><span id="siPassLabel">PIN</span><input id="siPass" type="password" autocomplete="off" inputmode="numeric"></label>
+      <label class="fld" id="siCodeRow" hidden><span>Code from the e-mail</span><input id="siCode" inputmode="numeric" autocomplete="one-time-code"></label>
+      <p id="siMsg" class="hint" role="status" hidden></p>
+      <button type="button" id="siGo" class="lbtn primary">Sign in</button>
+    </div>
+    <button type="button" id="gateSignIn" class="lbtn" hidden>Sign in as someone else</button>
+    <button type="button" id="gateSignOut" class="lbtn" hidden>Sign out</button>
+    <p class="login-foot" id="siHint">Use your QC app username and PIN. Once signed in, the Customers file and the files you share stay in sync with QC on every device.</p>
+    <p class="login-foot"><a id="gateHelp" href="help.html" target="_blank" rel="noopener">Cardfile help and user guide</a></p>
+  </form>
+</section>
 <div id="app">
   <header id="titlebar"><span class="tleft"><img id="appIcon" src="img/cardfile.svg" alt="" aria-hidden="true"><span id="appTitle">Cardfile - (Untitled)</span></span><span class="tright"><span id="syncUser" hidden></span><span id="saveState" title="Changes are saved in this browser automatically"></span></span></header>
   <nav id="menubar" role="menubar"></nav>
@@ -204,17 +218,6 @@
   <input type="file" id="scanFile" accept="image/*" hidden>
 </dialog>
 
-<dialog id="dlgSignIn" class="win" aria-label="Sign in to QC sync">
-  <form method="dialog" id="siForm" novalidate>
-    <h2>Sign in to QC sync</h2>
-    <p class="hint" id="siHint">Use your QC app username and PIN. Once signed in, the Customers file and the files you share stay in sync with QC on every device.</p>
-    <label id="siUserRow"><span id="siUserLabel">Username</span><input id="siUser" autocomplete="username" autocapitalize="off" spellcheck="false"></label>
-    <label id="siPassRow"><span id="siPassLabel">PIN</span><input id="siPass" type="password" autocomplete="off" inputmode="numeric"></label>
-    <label id="siCodeRow" hidden>Code from the e-mail<input id="siCode" inputmode="numeric" autocomplete="one-time-code"></label>
-    <p id="siMsg" class="hint" role="status" hidden></p>
-    <div class="buttons"><button type="button" id="siGo" class="default">Sign in</button><button value="cancel" formnovalidate>Cancel</button></div>
-  </form>
-</dialog>
 
 <input type="file" id="importCrd" accept=".crd,.CRD" multiple hidden>
 <input type="file" id="importJson" accept=".json,application/json" hidden>

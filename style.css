@@ -313,10 +313,6 @@ dialog.scan .buttons #scanBack { margin-right: auto; }
   height: auto; min-height: 3.2em; padding: 4px 0; font: 14px/1.5 var(--ui); background: transparent; color: var(--ink); resize: vertical; white-space: pre-wrap;
 }
 #cardView.fixedfont .card .notes textarea { font: 14px/1.5 var(--ui); }
-#dlgSignIn { width: 420px; }
-#dlgSignIn label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
-#dlgSignIn input { font: 14px var(--ui); padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: 8px; }
-#dlgSignIn input:focus { outline: 2px solid var(--focus); border-color: var(--accent); }
 #siMsg.err { margin: 8px 0 0; }
 
 #dlgFind { position: fixed; top: 130px; right: 24px; left: auto; bottom: auto; margin: 0; z-index: 100; }
@@ -370,14 +366,39 @@ dialog.scan .buttons #scanBack { margin-right: auto; }
   #printArea .pcard img { float: right; max-width: 1.5in; max-height: 1.2in; margin: 6px; }
 }
 
-/* sign-in screen (signed out: no cards are shown) */
-#gate { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, #14532d, #1f7a3d); z-index: 50; }
+/* sign-in screen (signed out: no cards are shown): same layout as QC Form's sign-in */
+#gate.login { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 24px 20px; overflow: auto; background: #1A1A1C; }
 #gate[hidden] { display: none; }
 body.locked #app { display: none; }
-.gatebox { background: #fff; border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.3); padding: 32px 36px; max-width: 360px; text-align: center; }
-.gatebox h1 { margin: 0 0 8px; font-size: 26px; }
-.gatebox p { margin: 0 0 18px; color: #444; }
-.gatebox button { font-size: 16px; padding: 8px 28px; }
+.login-bg { position: fixed; inset: 0; background: url(img/login-bg.jpg) 48% 64% / cover no-repeat; }
+.login-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(26,26,28,.55) 0%, rgba(26,26,28,.35) 45%, rgba(26,26,28,.8) 100%); }
+.login-card { position: relative; width: min(440px, 100%); box-sizing: border-box; background: rgba(255,255,255,.97); border-radius: 14px; border-top: 5px solid var(--accent);
+  box-shadow: 0 18px 50px rgba(0,0,0,.45); padding: 26px 28px 20px; display: flex; flex-direction: column; gap: 12px; color: var(--ink); }
+.login-logo { display: block; width: 84px; height: 84px; margin: 0 auto 2px; border-radius: 18px; }
+.login-company { margin: 0; text-align: center; font-size: 22px; color: #2C2C2E; }
+.login-address { margin: -6px 0 0; text-align: center; color: #3E555C; line-height: 1.4; }
+.login-app { margin: 0; text-align: center; color: var(--accent-strong, #166534); font-size: 15px; }
+.login-text { margin: 0; text-align: center; color: #3E555C; }
+.login-text[hidden] { display: none; }
+.login-msg { margin: 0; padding: 10px 12px; border-radius: 8px; background: #F3F5F6; border: 1px solid #D5D8DB; color: #2C2C2E; font-size: 15px; }
+.login-msg:empty { display: none; }
+#siFields { display: flex; flex-direction: column; gap: 12px; }
+#siFields[hidden] { display: none; }
+.login-card .fld { display: flex; flex-direction: column; gap: 4px; }
+.login-card .fld[hidden] { display: none; }
+.login-card .fld > span { font-size: 14px; color: #333; }
+.login-card .fld input { font: 16px var(--ui); min-height: 44px; padding: 0 12px; border: 1.5px solid #D5D8DB; border-radius: 10px; background: #fff; color: var(--ink); box-sizing: border-box; }
+.login-card .fld input:focus { outline: 3px solid var(--focus); outline-offset: 1px; border-color: var(--accent); }
+.login-card #siMsg { margin: 0; }
+.login-card #siMsg.err { color: #b91c1c; }
+.lbtn { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; padding: 0 18px; border-radius: 10px; border: 1.5px solid var(--accent);
+  background: #fff; color: var(--accent); font: 600 16px var(--ui); cursor: pointer; }
+.lbtn[hidden] { display: none; }
+.lbtn.primary { min-height: 56px; font-size: 18px; background: var(--accent); color: #fff; }
+.lbtn.primary:hover { background: #166534; border-color: #166534; }
+.lbtn:disabled { opacity: .6; cursor: default; }
+.lbtn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.login-foot { margin: 0; text-align: center; font-size: 13px; color: #3E555C; }
 
 /* Help link: fixed top-right, above the sign-in screen too */
 #helpLink { position: fixed; top: 13px; right: 10px; z-index: 60; font-size: 13px; line-height: 1; padding: 6px 12px; border-radius: 999px;
@@ -385,3 +406,4 @@ body.locked #app { display: none; }
 #helpLink:hover, #helpLink:focus { background: #fff; text-decoration: underline; }
 #titlebar { padding-right: 80px; }
 @media print { #helpLink { display: none; } }
+.login-foot a { color: #15803d; font-weight: 600; }

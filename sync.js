@@ -266,7 +266,7 @@
     $('#siHint').textContent = qc ? 'Use your QC app username and PIN. Once signed in, the Customers file and the files you share stay in sync with QC on every device.'
       : 'Once signed in, the Customers file and the files you share stay in sync with QC on every device.';
     $('#siMsg').hidden = true; $('#siPass').value = ''; $('#siCode').value = '';
-    host.showDialog('#dlgSignIn');
+    $('#siFields').hidden = false; $('#gateSignIn').hidden = true;   // the form lives on the sign-in screen
     $('#siUser').focus();
   }
   async function doSignIn() {
@@ -281,7 +281,7 @@
       $('#siPass').value = '';                            // don't keep the PIN around
       if (session && r.session && session.user && r.session.user && session.user.id !== r.session.user.id) fileState = null;
       if (S.roleUser !== (r.session && r.session.user && r.session.user.id)) { S.role = null; S.roleUser = null; }
-      session = r.session; $('#dlgSignIn').close('ok'); ui();
+      session = r.session; ui();
       sync({ full: !S.wm, manual: true });
     } catch (e) {
       msg.className = 'err'; msg.textContent = plainAuth(e);
@@ -639,7 +639,8 @@
     const g = $('#gate'); if (g) g.hidden = !on;
     const m = $('#gateMsg'), b = $('#gateSignIn'), o = $('#gateSignOut');
     if (m) m.textContent = noRole ? 'You don’t have Cardfile access yet. Ask a QC admin to give you Cardfile access, then sign in again.' : '';
-    if (b) b.textContent = noRole ? 'Sign in as someone else' : 'Sign in';
+    if (b) b.hidden = !noRole;                      // role none: "Sign in as someone else" shows the form again
+    const fs = $('#siFields'); if (fs && on) fs.hidden = !!noRole;
     if (o) o.hidden = !noRole;
     const t = $('#gateText'); if (t) t.hidden = !!noRole;
   }

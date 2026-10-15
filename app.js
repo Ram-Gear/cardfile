@@ -642,7 +642,7 @@
     ['&Search', [
       ['&Go To…', openGoto, 'F4'], ['&Find…', openFind], ['Find &Next', findNext, 'F3'], ['-'],
       ['Search &All Files…', () => openSearchAll(), 'Ctrl+Shift+F']]],
-    ['&Help', [['&Keys and Commands', openHelp, 'F1'], ['&About Cardfile…', openAbout]]],
+    ['&Help', [['&Keys and Commands', openHelp, 'F1'], ['&User guide (help.html)', () => window.open('help.html', '_blank', 'noopener')], ['&About Cardfile…', openAbout]]],
   ];
   const menuEls = [];
   function label(s) { const i = s.indexOf('&'); const frag = document.createDocumentFragment(); if (i < 0) { frag.append(s); return frag; } frag.append(s.slice(0, i), el('u', { text: s[i + 1] }), s.slice(i + 2)); return frag; }
