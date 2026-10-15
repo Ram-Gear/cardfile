@@ -28,7 +28,7 @@
 html, body { margin: 0; height: 100%; }
 body {
   font: 14px/1.45 var(--ui); color: var(--ink);
-  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%) fixed;
+  background: #EAF7EA;   /* page background (outside cards, inputs and text areas) */
   -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
 }
 button, input, select, textarea { font-family: inherit; color: inherit; }
