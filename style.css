@@ -94,7 +94,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 }
 #filePicker { max-width: 240px; }
 #quickSearch { width: 210px; }
-#filePicker:focus, #quickSearch:focus { outline: 2px solid var(--focus); border-color: var(--accent); }
+#filePicker:focus, #quickSearch:focus { outline: 3px solid var(--focus); outline-offset: 0; box-shadow: 0 0 0 5px #245E6E; border-color: var(--accent); }
 
 /* ---------- A–Z bar ---------- */
 #letterbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 16px; background: transparent; border: 0; }
@@ -166,7 +166,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 #cardList li .t { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 #cardList li.sel { background: var(--accent); color: var(--accent-ink); }
 #cardList li.sel .filetag { background: rgba(255, 255, 255, .2); color: #fff; }
-#cardList:focus-visible { outline: 2px solid var(--focus); }
+#cardList:focus-visible { outline: 3px solid var(--focus); outline-offset: 0; box-shadow: 0 0 0 5px #245E6E; }
 
 /* ---------- dialogs ---------- */
 dialog.win {
@@ -181,7 +181,7 @@ dialog.win label { display: block; margin: 10px 0; color: var(--ink-soft); }
 dialog.win input[type=search], dialog.win input:not([type]), dialog.win select {
   font: 14px var(--ui); padding: 7px 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--ink);
 }
-dialog.win input:focus, dialog.win select:focus { outline: 2px solid var(--focus); border-color: var(--accent); }
+dialog.win input:focus, dialog.win select:focus { outline: 3px solid var(--focus); outline-offset: 0; box-shadow: 0 0 0 5px #245E6E; border-color: var(--accent); }
 dialog.win fieldset { display: inline-flex; gap: 10px; align-items: center; margin: 0 0 0 20px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 10px; }
 dialog.win fieldset legend { padding: 0 4px; font-size: 12px; color: var(--muted); }
 dialog.win fieldset label { display: inline; margin: 0; }
@@ -196,7 +196,7 @@ dialog.win u { text-decoration-color: var(--muted); }
 .buttons button:hover { background: #f1f5f9; }
 .buttons button.default { background: var(--accent); border-color: var(--accent); color: #fff; outline: none; }
 .buttons button.default:hover { background: #245E6E; }
-.buttons button:focus-visible { outline: 3px solid var(--focus); }
+.buttons button:focus-visible { outline: 3px solid var(--focus); outline-offset: 0; box-shadow: 0 0 0 5px #245E6E; }
 .hint { font-size: 12.5px; color: var(--muted); margin: 6px 0; }
 .msg { white-space: pre-wrap; max-width: 520px; line-height: 1.55; }
 ul.pick {
@@ -226,7 +226,7 @@ ul.results li button:hover .snip, ul.results li button:focus .snip { color: #EAF
   box-shadow: 0 1px 2px rgba(46, 115, 134, .25); transition: background .15s;
 }
 #btnScan:hover { background: #245E6E; }
-#btnScan:focus-visible { outline: 3px solid var(--focus); }
+#btnScan:focus-visible { outline: 3px solid var(--focus); outline-offset: 0; box-shadow: 0 0 0 5px #245E6E; }
 
 /* ---------- scan business card dialog ---------- */
 dialog.win.scan { width: 900px; max-height: 94vh; overflow: hidden; }
@@ -267,7 +267,7 @@ dialog.scan .sgrid label { margin: 0; font-size: 13px; color: var(--muted); text
 dialog.scan .sgrid input, dialog.scan .sgrid select, dialog.scan .sgrid .csz input {
   width: 100%; font: 14px var(--ui); padding: 5px 9px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--ink);
 }
-dialog.scan .sgrid input:focus, #scanRaw:focus { outline: 2px solid var(--focus); border-color: var(--accent); }
+dialog.scan .sgrid input:focus, #scanRaw:focus { outline: 3px solid var(--focus); outline-offset: 0; box-shadow: 0 0 0 5px #245E6E; border-color: var(--accent); }
 dialog.scan .sgrid input:placeholder-shown { background: #fbfcfe; }
 .sgrid .csz { display: grid; grid-template-columns: minmax(0, 1fr) 52px 92px; gap: 6px; }
 #scanIndex { font-weight: 600 !important; text-transform: uppercase; }
@@ -388,7 +388,7 @@ body.locked #app { display: none; }
 .login-card .fld[hidden] { display: none; }
 .login-card .fld > span { font-size: 14px; color: #333; }
 .login-card .fld input { font: 16px var(--ui); min-height: 44px; padding: 0 12px; border: 1.5px solid #D5D8DB; border-radius: 10px; background: #fff; color: var(--ink); box-sizing: border-box; }
-.login-card .fld input:focus { outline: 3px solid var(--focus); outline-offset: 1px; border-color: var(--accent); }
+.login-card .fld input:focus { outline: 3px solid var(--focus); outline-offset: 0; box-shadow: 0 0 0 5px #245E6E; border-color: var(--accent); }
 .login-card #siMsg { margin: 0; }
 .login-card #siMsg.err { color: #b91c1c; }
 .lbtn { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; padding: 0 18px; border-radius: 10px; border: 1.5px solid var(--accent);
@@ -397,7 +397,7 @@ body.locked #app { display: none; }
 .lbtn.primary { min-height: 56px; font-size: 18px; background: var(--accent); color: #fff; }
 .lbtn.primary:hover { background: #245E6E; border-color: #245E6E; }
 .lbtn:disabled { opacity: .6; cursor: default; }
-.lbtn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.lbtn:focus-visible { outline: 3px solid var(--focus); outline-offset: 0; box-shadow: 0 0 0 5px #245E6E; }
 .login-foot { margin: 0; text-align: center; font-size: 13px; color: #3E555C; }
 
 /* Help link: fixed top-right, above the sign-in screen too */
