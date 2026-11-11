@@ -1,4 +1,9 @@
-# Keeps the Supabase project awake. Anon under RLS returns 200 with no rows ([]).
+# Keeps the Supabase project awake.
+# Anon has no GRANT on public.customer_cards, so the request comes back
+# HTTP 401 with Postgres error 42501 (permission denied). That still
+# means Postgres answered, which is enough to keep the project awake.
+# HTTP 200 (for example an empty array under RLS) also counts as success.
+# Do not change grants or the schema to make this a 200.
 name: Supabase keepalive
 
 on:
@@ -13,18 +18,34 @@ jobs:
   keepalive:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping customer_cards (status only)
+      - name: Ping customer_cards (status and error code only)
         env:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           set -euo pipefail
-          status="$(curl -sS -o /dev/null -w '%{http_code}' \
+          tmp="$(mktemp)"
+          trap 'rm -f "${tmp}"' EXIT
+          set +e
+          status="$(curl -sS -o "${tmp}" -w '%{http_code}' --connect-timeout 10 --max-time 30 \
             -H "apikey: ${SUPABASE_ANON_KEY}" \
             -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
             -H "Accept: application/json" \
             "https://dbveedcksommanxshpzx.supabase.co/rest/v1/customer_cards?select=id&limit=1")"
-          echo "HTTP status: ${status}"
-          if [ "${status}" != "200" ]; then
-            echo "Supabase keepalive failed: expected HTTP 200, got ${status}."
+          curl_exit=$?
+          set -e
+          if [ "${curl_exit}" -ne 0 ]; then
+            echo "Supabase keepalive failed: curl exited ${curl_exit} (HTTP status ${status:-none})."
             exit 1
           fi
+          echo "HTTP status: ${status}"
+          if [ "${status}" = "200" ]; then
+            exit 0
+          fi
+          # Read only the error code from the body; never print the body itself.
+          code="$(python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); v=d.get("code"); print("" if v is None else str(v))' "${tmp}" 2>/dev/null || true)"
+          echo "Error code: ${code:-none}"
+          if [ "${status}" = "401" ] && [ "${code}" = "42501" ]; then
+            exit 0
+          fi
+          echo "Supabase keepalive failed: expected HTTP 200, or 401 with error code 42501; got HTTP ${status}, error code ${code:-none}."
+          exit 1
