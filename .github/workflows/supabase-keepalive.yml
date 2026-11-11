@@ -1,0 +1,30 @@
+# Keeps the Supabase project awake. Anon under RLS returns 200 with no rows ([]).
+name: Supabase keepalive
+
+on:
+  schedule:
+    - cron: '0 14 * * 1,4'   # Mondays and Thursdays, 8:00 AM Central Standard Time (14:00 UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping customer_cards (status only)
+        env:
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          status="$(curl -sS -o /dev/null -w '%{http_code}' \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            -H "Accept: application/json" \
+            "https://dbveedcksommanxshpzx.supabase.co/rest/v1/customer_cards?select=id&limit=1")"
+          echo "HTTP status: ${status}"
+          if [ "${status}" != "200" ]; then
+            echo "Supabase keepalive failed: expected HTTP 200, got ${status}."
+            exit 1
+          fi
